@@ -19,6 +19,7 @@ const STIMULI: Record<ReactionMode, string[]> = {
 };
 
 export function useReaction(cfg: ReactionConfig) {
+  const { mode, displayMs, gapRange, durationSec } = cfg;
   const [phase, setPhase] = useState<ReactionPhase>('idle');
   const [stimulus, setStimulus] = useState('');
   const [count, setCount] = useState(0);
@@ -30,14 +31,14 @@ export function useReaction(cfg: ReactionConfig) {
   }, []);
 
   const pick = useCallback(() => {
-    const pool = STIMULI[cfg.mode];
+    const pool = STIMULI[mode];
     return pool[Math.floor(Math.random() * pool.length)];
-  }, [cfg.mode]);
+  }, [mode]);
 
   const start = useCallback(() => {
     clearTimers();
     setCount(0);
-    const endAt = Date.now() + cfg.durationSec * 1000;
+    const endAt = Date.now() + durationSec * 1000;
     const loop = () => {
       if (Date.now() >= endAt) {
         setPhase('finished');
@@ -49,14 +50,14 @@ export function useReaction(cfg: ReactionConfig) {
       timersRef.current.push(
         window.setTimeout(() => {
           setPhase('gap');
-          const [lo, hi] = cfg.gapRange;
+          const [lo, hi] = gapRange;
           const gap = lo + Math.random() * (hi - lo);
           timersRef.current.push(window.setTimeout(loop, gap));
-        }, cfg.displayMs),
+        }, displayMs),
       );
     };
     loop();
-  }, [cfg, clearTimers, pick]);
+  }, [durationSec, displayMs, gapRange, clearTimers, pick]);
 
   const stop = useCallback(() => {
     clearTimers();

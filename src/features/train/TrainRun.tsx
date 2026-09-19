@@ -10,9 +10,38 @@ import { genId } from '../../lib/id';
 import { today } from '../../lib/cue';
 import { PROMPT_META } from '../../lib/prompt';
 import ProgressRing from '../../components/ProgressRing';
+import ReactionTrainer from '../../components/ReactionTrainer';
+import { useSettingsStore } from '../../stores/settingsStore';
 import type { PlanStep } from '../../types';
 
 function StepRunner({ step, onDone }: { step: PlanStep; onDone: () => void }) {
+  if (step.mode) {
+    return <ReactionStep step={step} onDone={onDone} />;
+  }
+  return <TimedStep step={step} onDone={onDone} />;
+}
+
+function ReactionStep({ step, onDone }: { step: PlanStep; onDone: () => void }) {
+  const exercise = getExercise(step.exerciseId);
+  const reaction = useSettingsStore((s) => s.reaction);
+  return (
+    <div className="flex flex-1 flex-col">
+      <p className="text-center text-2xl font-semibold text-slate-900 dark:text-white">{step.name}</p>
+      {exercise?.description ? (
+        <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">{exercise.description}</p>
+      ) : null}
+      <ReactionTrainer
+        mode={step.mode!}
+        displayMs={reaction.displayMs}
+        gapRange={reaction.gapRange}
+        durationSec={step.durationSec}
+        onFinished={onDone}
+      />
+    </div>
+  );
+}
+
+function TimedStep({ step, onDone }: { step: PlanStep; onDone: () => void }) {
   const exercise = getExercise(step.exerciseId);
   const { remainSec, running, pause, resume } = useCountdown(step.durationSec, onDone);
   const elapsed = step.durationSec - remainSec;
