@@ -79,6 +79,8 @@ export interface Exercise {
   commonMistakes: string[];
   safety: string;
   mode?: ReactionMode;
+  chainStage?: string; // 发力链阶段（Phase 1），如 pelvis_rotation
+  level?: number; // 发力/进阶等级（Phase 1/3），如 Power Chain Level
 }
 
 export interface PlanStep {
