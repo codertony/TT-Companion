@@ -173,6 +173,9 @@ export default function ReactionPage() {
             </div>
           )}
           <p className="mt-8 text-center text-xs text-slate-400 dark:text-slate-500">{currentMode.howTo}</p>
+          <p className="mt-1 text-center text-xs text-slate-400">
+            已闪 {count} 次 · 本轮共 {reaction.durationSec} 秒
+          </p>
         </div>
       )}
 
