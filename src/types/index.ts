@@ -123,7 +123,10 @@ export interface Settings {
   audio: { gapRange: [number, number]; rate: number; repeat: number; includeLength: boolean };
   mapping: Record<string, string>;
   sound: boolean;
+  theme: Theme;
 }
+
+export type Theme = 'light' | 'dark' | 'system';
 
 export interface Abilities {
   mobility: number;

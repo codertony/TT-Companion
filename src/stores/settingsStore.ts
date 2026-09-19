@@ -7,6 +7,7 @@ const defaults: Settings = {
   audio: { gapRange: [2000, 4000], rate: 1, repeat: 1, includeLength: false },
   mapping: { red: 'left', blue: 'right', green: 'fh', yellow: 'bh' },
   sound: true,
+  theme: 'system',
 };
 
 interface SettingsState extends Settings {

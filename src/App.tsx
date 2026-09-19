@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { HashRouter, Routes, Route, Outlet } from 'react-router-dom';
 import TabBar from './components/TabBar';
+import { useSettingsStore } from './stores/settingsStore';
 import Home from './features/home/Home';
 import SceneSelect from './features/train/SceneSelect';
 import DurationSelect from './features/train/DurationSelect';
@@ -19,16 +21,34 @@ import IntegrationPage from './features/integration/IntegrationPage';
 
 function Layout() {
   return (
-    <div className="mx-auto min-h-dvh w-full max-w-md bg-slate-50 pb-16">
+    <div className="mx-auto min-h-dvh w-full max-w-md bg-slate-50 pb-16 dark:bg-slate-950">
       <Outlet />
       <TabBar />
     </div>
   );
 }
 
+function ThemeApplier() {
+  const theme = useSettingsStore((s) => s.theme);
+  useEffect(() => {
+    const root = document.documentElement;
+    const apply = (dark: boolean) => root.classList.toggle('dark', dark);
+    if (theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      apply(mq.matches);
+      const handler = (e: MediaQueryListEvent) => apply(e.matches);
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+    }
+    apply(theme === 'dark');
+  }, [theme]);
+  return null;
+}
+
 export default function App() {
   return (
     <HashRouter>
+      <ThemeApplier />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />

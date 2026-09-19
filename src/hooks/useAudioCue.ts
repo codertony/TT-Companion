@@ -4,6 +4,7 @@ const WORDS = ['左', '右', '正手', '反手', '短', '长'];
 
 export function useAudioCue(gapRange: [number, number]) {
   const [running, setRunning] = useState(false);
+  const [count, setCount] = useState(0);
   const runningRef = useRef(false);
   const timerRef = useRef<number | null>(null);
 
@@ -25,9 +26,11 @@ export function useAudioCue(gapRange: [number, number]) {
     stop();
     runningRef.current = true;
     setRunning(true);
+    setCount(0);
     const loop = () => {
       if (!runningRef.current) return;
       speak(WORDS[Math.floor(Math.random() * WORDS.length)]);
+      setCount((c) => c + 1);
       const [lo, hi] = gapRange;
       const gap = lo + Math.random() * (hi - lo);
       timerRef.current = window.setTimeout(loop, gap);
@@ -35,5 +38,5 @@ export function useAudioCue(gapRange: [number, number]) {
     loop();
   }, [gapRange, speak, stop]);
 
-  return { running, start, stop };
+  return { running, count, start, stop };
 }

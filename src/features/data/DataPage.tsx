@@ -1,12 +1,14 @@
+import { Link } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
 import { useCueStore } from '../../stores/cueStore';
+import { useFeedbackStore } from '../../stores/feedbackStore';
 import { isThisWeek, streakDays, toDateStr } from '../../lib/date';
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white p-4 text-center ring-1 ring-slate-100">
+    <div className="rounded-2xl bg-white p-4 text-center ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
       <p className="text-xl font-bold">{value}</p>
-      <p className="mt-1 text-xs text-slate-400">{label}</p>
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{label}</p>
     </div>
   );
 }
@@ -14,9 +16,16 @@ function Stat({ label, value }: { label: string; value: string }) {
 export default function DataPage() {
   const sessions = useSessionStore((s) => s.sessions);
   const history = useCueStore((s) => s.history);
-  const weekDone = sessions.filter((s) => isThisWeek(s.date)).length;
+  const primary = useCueStore((s) => s.primary);
+  const feedback = useFeedbackStore((s) => s.feedback);
+  const weekDays = new Set(sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date)).size;
   const streak = streakDays(sessions.map((s) => s.date));
   const total = sessions.length;
+
+  const latestFeedback = primary ? feedback.find((f) => f.cueId === primary.id) : undefined;
+  const resultLabel = { much: '明显改善', slight: '略有改善', none: '没有变化', worse: '感觉更差' }[
+    latestFeedback?.result ?? 'none'
+  ];
 
   const bars = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -25,32 +34,57 @@ export default function DataPage() {
   });
   const maxCount = Math.max(1, ...bars.map((b) => b.count));
 
+  if (total === 0) {
+    return (
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center bg-slate-50 px-5 text-center text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <p className="text-lg font-semibold">还没有训练数据</p>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">完成第一次训练后，这里会显示你的训练节奏和变化。</p>
+        <Link to="/train" className="mt-6 block h-12 w-full rounded-xl bg-blue-600 leading-[48px] text-white">
+          开始训练
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto min-h-dvh w-full max-w-md bg-slate-50 px-5 py-8 text-slate-900">
+    <div className="mx-auto min-h-dvh w-full max-w-md bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <h2 className="text-2xl font-semibold">数据</h2>
-      <p className="mt-1 text-sm text-slate-500">我有没有进步？</p>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">本周已练 {weekDays} 天 · 连续打卡 {streak} 天</p>
 
       <div className="mt-6 grid grid-cols-3 gap-3">
-        <Stat label="本周" value={`${weekDone}/7`} />
-        <Stat label="连续天数" value={`${streak}`} />
-        <Stat label="累计训练" value={`${total}`} />
+        <Stat label="本周训练" value={`${weekDays}/7 天`} />
+        <Stat label="连续打卡" value={`${streak} 天`} />
+        <Stat label="累计训练" value={`${total} 次`} />
       </div>
 
-      <p className="mt-8 text-sm font-medium text-slate-500">近 7 天训练</p>
-      <div className="mt-3 flex items-end gap-2 rounded-2xl bg-white p-4 ring-1 ring-slate-100">
+      <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">近 7 天训练</p>
+      <div className="mt-3 flex items-end gap-2 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
         {bars.map((b, i) => (
           <div key={i} className="flex flex-1 flex-col items-center gap-1">
+            {b.count > 0 && <span className="text-[10px] text-slate-500 dark:text-slate-400">{b.count}</span>}
             <div
-              className="w-full rounded-t bg-blue-500"
-              style={{ height: `${Math.max(4, (b.count / maxCount) * 80)}px` }}
+              className={`w-full rounded-t ${i === bars.length - 1 ? 'bg-blue-600' : 'bg-blue-400'}`}
+              style={{ height: `${Math.max(4, (b.count / maxCount) * 72)}px` }}
             />
             <span className="text-xs text-slate-400">{b.label}</span>
           </div>
         ))}
       </div>
 
-      <p className="mt-8 text-sm font-medium text-slate-500">ONE CUE 完成</p>
-      <p className="mt-2 text-sm text-slate-500">{history.filter((c) => c.status === 'done').length} 个已达成</p>
+      <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">本周 ONE CUE 验证</p>
+      <div className="mt-2 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+        {primary ? (
+          <>
+            <p className="font-medium">{primary.text}</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {latestFeedback ? `最近验证：${resultLabel}（${latestFeedback.date.slice(5)}）` : '本周还没验证'}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-slate-500 dark:text-slate-400">先设置本周 ONE CUE</p>
+        )}
+        <p className="mt-2 text-xs text-slate-400">累计达成 {history.filter((c) => c.status === 'done').length} 个</p>
+      </div>
     </div>
   );
 }
