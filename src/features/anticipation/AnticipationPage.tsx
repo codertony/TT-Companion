@@ -59,6 +59,15 @@ export default function AnticipationPage() {
         </Link>
       </div>
 
+      <a
+        href="https://www.bilibili.com/video/BV1rgAdesEa8/"
+        target="_blank"
+        rel="noreferrer"
+        className="mt-1 block text-xs text-blue-500 underline dark:text-blue-400"
+      >
+        📖 参考：接发球如何快速判断旋转（B 站视频）
+      </a>
+
       <div className="flex flex-1 flex-col justify-center">
         {!cue ? (
           <div className="flex flex-col items-center text-center">

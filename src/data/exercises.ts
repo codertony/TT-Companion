@@ -74,8 +74,9 @@ export const exercises: Exercise[] = [
       { atSec: 12, type: 'safety', text: '照常呼吸，别憋气' },
       { atSec: 20, type: 'awareness', text: '感受「绷住」和「放松」的区别' },
     ],
-    description: '像有人要轻拍你肚子时，肚子自然绷一下，保持这份张力、照常呼吸；别用力吸肚子，也别憋气。',
-    commonMistakes: ['吸肚子', '憋气'],
+    description: '想象有人要轻轻打你肚子，腹部四周（前面、侧面、腰后）一起绷紧，像给自己套了一圈"护腰"，保持照常呼吸；别只吸肚子，也别憋气。',
+    commonMistakes: ['只收前面，侧腰松', '吸肚子', '憋气'],
+    refs: [{ title: '什么是腹部支撑（Abdominal Bracing）· 英文图解', url: 'https://perifit.co/blogs/sports/abdominal-bracing' }],
   }),
   ex({
     id: 'shoulder_relax',
@@ -406,6 +407,7 @@ export const exercises: Exercise[] = [
       { atSec: 25, type: 'awareness', text: '胯转到击球方向就够了，别甩腰' },
     ],
     description: '不挥拍，只让胯（骨盆）先转向击球方向，手完全不动；别整个人猛转，也别一开始就甩手。',
+    refs: [{ title: '乒乓球发力：框架动力链（知乎干货）', url: 'https://zhuanlan.zhihu.com/p/1921489385779601585' }],
   }),
   ex({
     id: 'fh_arm_lag',
@@ -502,6 +504,7 @@ export const exercises: Exercise[] = [
       { atSec: 28, type: 'force', text: '往前上方一起发力，拍子向上走' },
     ],
     description: '比平时更低地准备，重心沉下去，用腿和髋把身体向前上方顶起，拍子从球的下部往上摩擦；别先抬手。',
+    refs: [{ title: '乒乓球动作动力链的四加三（知乎）', url: 'https://zhuanlan.zhihu.com/p/2038561208769442558' }],
   }),
   ex({
     id: 'tension_8to2',

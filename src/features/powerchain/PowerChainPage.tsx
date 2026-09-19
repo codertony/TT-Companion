@@ -55,6 +55,14 @@ export default function PowerChainPage() {
         </Link>
       </div>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">稳定 — 传递 — 加速 · 逐个环节徒手体会</p>
+      <a
+        href="https://zhuanlan.zhihu.com/p/1921489385779601585"
+        target="_blank"
+        rel="noreferrer"
+        className="mt-1 block text-xs text-blue-500 underline dark:text-blue-400"
+      >
+        📖 参考：乒乓球发力「框架动力链」详解（知乎）
+      </a>
 
       <div className="mt-6 space-y-5">
         {chainGroups.map((g) => (

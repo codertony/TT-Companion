@@ -63,6 +63,11 @@ export interface Cue {
   doneWeeks: number;
 }
 
+export interface ExerciseRef {
+  title: string;
+  url: string;
+}
+
 export interface Exercise {
   id: string;
   name: string;
@@ -81,6 +86,7 @@ export interface Exercise {
   mode?: ReactionMode;
   chainStage?: string; // 发力链阶段（Phase 1），如 pelvis_rotation
   level?: number; // 发力/进阶等级（Phase 1/3），如 Power Chain Level
+  refs?: ExerciseRef[]; // 外部参考（文章/视频）
 }
 
 export interface PlanStep {

@@ -47,6 +47,14 @@ export default function OcclusionPage() {
           返回
         </Link>
       </div>
+      <a
+        href="https://www.bilibili.com/video/BV1hvVa61Ey9/"
+        target="_blank"
+        rel="noreferrer"
+        className="mt-1 block text-xs text-blue-500 underline dark:text-blue-400"
+      >
+        📖 参考：看不清旋转怎么办（B 站视频）
+      </a>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         黑屏越早，留给你的线索越少，难度越高。
       </p>

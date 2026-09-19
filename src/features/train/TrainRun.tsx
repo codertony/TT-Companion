@@ -66,6 +66,22 @@ function StepRunner({ step, onDone }: { step: PlanStep; onDone: () => void }) {
         </div>
       )}
 
+      {exercise?.refs?.length ? (
+        <div className="mt-3 w-full text-left">
+          {exercise.refs.map((r) => (
+            <a
+              key={r.url}
+              href={r.url}
+              target="_blank"
+              rel="noreferrer"
+              className="block truncate text-xs text-blue-500 underline dark:text-blue-400"
+            >
+              📖 {r.title}
+            </a>
+          ))}
+        </div>
+      ) : null}
+
       <div className="mt-6 flex w-full items-center gap-3">
         <button
           onClick={running ? pause : resume}

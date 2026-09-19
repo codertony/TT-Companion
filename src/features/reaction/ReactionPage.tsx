@@ -35,7 +35,7 @@ const MODES: ModeDef[] = [
   {
     id: 'color',
     name: '颜色',
-    howTo: '按固定颜色做动作：红=左、绿=右、蓝=正手、黄=反手',
+    howTo: '看到色块，按固定颜色做动作：红=左、绿=右、蓝=正手、黄=反手',
     mapping: [
       { s: '红', a: '向左并步' },
       { s: '绿', a: '向右并步' },
@@ -62,6 +62,13 @@ const MODES: ModeDef[] = [
     ],
   },
 ];
+
+const COLOR_STYLES: Record<string, string> = {
+  红: 'bg-red-500',
+  绿: 'bg-green-500',
+  蓝: 'bg-blue-500',
+  黄: 'bg-yellow-400',
+};
 
 export default function ReactionPage() {
   const reaction = useSettingsStore((s) => s.reaction);
@@ -147,7 +154,11 @@ export default function ReactionPage() {
       {started && phase !== 'finished' && (
         <div className="flex flex-1 flex-col items-center justify-center">
           {phase === 'showing' ? (
-            <p className="text-9xl font-bold text-lime-500">{stimulus}</p>
+            mode === 'color' ? (
+              <div className={`h-48 w-48 rounded-full ${COLOR_STYLES[stimulus] ?? 'bg-slate-500'}`} />
+            ) : (
+              <p className="text-9xl font-bold text-lime-500">{stimulus}</p>
+            )
           ) : (
             <div className="flex flex-col items-center text-center">
               <p className="text-lg text-slate-600 dark:text-slate-300">刚才跟上了吗？</p>

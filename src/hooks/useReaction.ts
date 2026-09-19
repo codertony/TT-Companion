@@ -11,11 +11,11 @@ export interface ReactionConfig {
 }
 
 const STIMULI: Record<ReactionMode, string[]> = {
-  direction: ['←', '→'],
-  stroke: ['FH', 'BH'],
-  color: ['红', '蓝', '绿', '黄'],
-  number: ['1', '2', '3', '4'],
-  dual: ['红 1', '蓝 2', '绿 3', '黄 4'],
+  direction: ['←', '→', '↑', '↓'],
+  stroke: ['正手', '反手'],
+  color: ['红', '绿', '蓝', '黄'],
+  number: ['1', '2', '3', '4', '5', '6', '7', '8'],
+  dual: ['红 3', '蓝 4', '绿 1', '黄 2'],
 };
 
 export function useReaction(cfg: ReactionConfig) {
