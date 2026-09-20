@@ -59,7 +59,7 @@ function AssessForm({ id, meta }: { id: string; meta: AssessmentMeta }) {
               placeholder={`左（${meta.unit}）`}
               value={left}
               onChange={(e) => setLeft(e.target.value)}
-              className="h-12 flex-1 rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-800"
+              className="h-12 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-800"
             />
             <input
               type="number"
@@ -67,7 +67,7 @@ function AssessForm({ id, meta }: { id: string; meta: AssessmentMeta }) {
               placeholder={`右（${meta.unit}）`}
               value={right}
               onChange={(e) => setRight(e.target.value)}
-              className="h-12 flex-1 rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-800"
+              className="h-12 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-800"
             />
           </>
         ) : (
@@ -77,7 +77,7 @@ function AssessForm({ id, meta }: { id: string; meta: AssessmentMeta }) {
             placeholder={`数值（${meta.unit}）`}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="h-12 flex-1 rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-800"
+            className="h-12 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-800"
           />
         )}
       </div>
@@ -119,9 +119,9 @@ function HealthSection() {
         {latest && <span className="text-xs text-slate-400">最近 {latest.date.slice(5)}</span>}
       </div>
       <div className="mt-2 grid grid-cols-3 gap-2">
-        <input type="number" inputMode="decimal" placeholder="体重 kg" value={weight} onChange={(e) => setWeight(e.target.value)} className="h-12 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
-        <input type="number" inputMode="decimal" placeholder="腰围 cm" value={waist} onChange={(e) => setWaist(e.target.value)} className="h-12 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
-        <input type="number" inputMode="decimal" placeholder="静息心率" value={hr} onChange={(e) => setHr(e.target.value)} className="h-12 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
+        <input type="number" inputMode="decimal" placeholder="体重kg" value={weight} onChange={(e) => setWeight(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
+        <input type="number" inputMode="decimal" placeholder="腰围cm" value={waist} onChange={(e) => setWaist(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
+        <input type="number" inputMode="decimal" placeholder="心率" value={hr} onChange={(e) => setHr(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
       </div>
       <button onClick={save} className="mt-2 h-12 w-full rounded-xl bg-blue-600 text-sm font-medium text-white">
         记录
