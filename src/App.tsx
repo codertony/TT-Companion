@@ -18,6 +18,7 @@ import AnticipationPage from './features/anticipation/AnticipationPage';
 import OcclusionPage from './features/anticipation/OcclusionPage';
 import MentalRehearsalPage from './features/anticipation/MentalRehearsalPage';
 import IntegrationPage from './features/integration/IntegrationPage';
+import CheckInPage from './features/readiness/CheckInPage';
 
 function Layout() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="/occlusion" element={<OcclusionPage />} />
         <Route path="/mental" element={<MentalRehearsalPage />} />
         <Route path="/integration" element={<IntegrationPage />} />
+        <Route path="/checkin" element={<CheckInPage />} />
       </Routes>
     </HashRouter>
   );

@@ -274,6 +274,11 @@ export interface CheckinInput {
   restingHr?: number;
 }
 
+/** 每日 Check-in 记录（含日期） */
+export interface CheckinRecord extends CheckinInput {
+  date: string; // YYYY-MM-DD
+}
+
 export interface SafetyDecision {
   state: 'green' | 'yellow' | 'red';
   reasons: string[];
