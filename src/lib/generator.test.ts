@@ -58,4 +58,32 @@ describe('generatePlan', () => {
     expect(plan.reason).toBeTruthy();
     expect(plan.reason).toContain('暂无可用训练动作');
   });
+
+  it('yellow 安全状态不含 high 强度动作', () => {
+    const plan = generatePlan({
+      scene: 'home',
+      durationMin: 5,
+      cue: null,
+      feeling: 'normal',
+      exercises,
+      safety: { state: 'yellow', reasons: [], allowedIntensity: 'low', blockedExerciseTags: [], ruleSetVersion: '1' },
+    });
+    const byId = new Map(exercises.map((e) => [e.id, e]));
+    for (const s of plan.steps) {
+      expect(byId.get(s.exerciseId)!.intensity).not.toBe('high');
+    }
+  });
+
+  it('red 安全状态返回空计划并给出休息原因', () => {
+    const plan = generatePlan({
+      scene: 'home',
+      durationMin: 5,
+      cue: null,
+      feeling: 'normal',
+      exercises,
+      safety: { state: 'red', reasons: [], allowedIntensity: 'none', blockedExerciseTags: [], ruleSetVersion: '1' },
+    });
+    expect(plan.steps.length).toBe(0);
+    expect(plan.reason).toContain('休息');
+  });
 });

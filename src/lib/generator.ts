@@ -1,5 +1,6 @@
-import type { Ability, Cue, Exercise, Feeling, PlanStep, Scene, TrainingPlan } from '../types';
+import type { Ability, Cue, Exercise, Feeling, PlanStep, SafetyDecision, Scene, TrainingPlan } from '../types';
 import { genId } from './id';
+import { isExerciseAllowed } from '../domain/prescription';
 
 export interface GenerateInput {
   scene: Scene;
@@ -7,6 +8,7 @@ export interface GenerateInput {
   cue: Cue | null;
   feeling: Feeling;
   exercises: Exercise[];
+  safety?: SafetyDecision;
 }
 
 function rankAbility(a: Ability): number {
@@ -18,6 +20,12 @@ export function generatePlan(input: GenerateInput): TrainingPlan {
   const targetSec = input.durationMin * 60;
   const sceneCandidates = input.exercises.filter((e) => e.scenes.includes(input.scene));
   let candidates = sceneCandidates;
+
+  // 安全门过滤：red 全禁；yellow 禁高强度
+  if (input.safety) {
+    const safety = input.safety;
+    candidates = candidates.filter((e) => isExerciseAllowed(e, safety));
+  }
 
   // 地铁约束：零空间、禁高强度
   if (input.scene === 'metro_sit' || input.scene === 'metro_stand') {
@@ -61,9 +69,11 @@ export function generatePlan(input: GenerateInput): TrainingPlan {
 
   const reason =
     steps.length === 0
-      ? sceneCandidates.length === 0
-        ? '当前场景暂无可用训练动作，请换个场景'
-        : '当前状态下没有可用的训练动作，可换个场景或降低时长'
+      ? input.safety?.state === 'red'
+        ? '今日状态不适合训练（出现警示症状），请先休息'
+        : sceneCandidates.length === 0
+          ? '当前场景暂无可用训练动作，请换个场景'
+          : '当前状态下没有可用的训练动作，可换个场景或降低时长'
       : undefined;
 
   return {

@@ -14,6 +14,7 @@ export default function Profile() {
 
   const links = [
     { to: '/profile/cue', name: 'ONE CUE 管理', desc: cueDesc, dot: primary && !feedback.some((f) => f.cueId === primary.id) },
+    { to: '/assess', name: '评估中心', desc: '单腿稳定 / 下肢控制，找左右短板' },
     { to: '/profile/feedback', name: '周末验证', desc: '本周 Cue 有没有迁移到真实击球' },
     { to: '/profile/settings', name: '设置', desc: '提示参数、主题、导出与清空' },
   ];

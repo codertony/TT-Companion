@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTrainStore } from '../../stores/trainStore';
 import { useCueStore } from '../../stores/cueStore';
+import { useCheckinStore, todayCheckin } from '../../stores/checkinStore';
+import { evaluateSafety } from '../../domain/safety';
 import { generatePlan } from '../../lib/generator';
 import { exercises } from '../../data/exercises';
 import type { Feeling } from '../../types';
@@ -26,6 +28,7 @@ export default function DurationSelect() {
   const setFeeling = useTrainStore((s) => s.setFeeling);
   const setPlan = useTrainStore((s) => s.setPlan);
   const cue = useCueStore((s) => s.primary);
+  const records = useCheckinStore((s) => s.records);
   const [feeling, setFeelingLocal] = useState<Feeling>('normal');
 
   const sceneName = { metro_sit: '地铁 · 坐', metro_stand: '地铁 · 站', office: '办公室', home: '家', club: '球馆' }[scene ?? 'home'];
@@ -34,7 +37,8 @@ export default function DurationSelect() {
     if (!scene) return;
     setFeeling(feeling);
     setDuration(min);
-    setPlan(generatePlan({ scene, durationMin: min, cue, feeling, exercises }));
+    const safety = evaluateSafety(todayCheckin(records) ?? {});
+    setPlan(generatePlan({ scene, durationMin: min, cue, feeling, exercises, safety }));
     nav('/train/run');
   };
 
