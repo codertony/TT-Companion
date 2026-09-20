@@ -1,0 +1,16 @@
+{
+  "name": "离台训练伴侣",
+  "short_name": "离台训练",
+  "description": "乒乓球离台训练伴侣：工作日离台专项训练，周末回球台验证。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#2563EB",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

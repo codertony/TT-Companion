@@ -16,7 +16,8 @@ function rankAbility(a: Ability): number {
 /** 纯函数训练计划生成器：场景 × 时长 × Cue × 状态 → 分步计划 */
 export function generatePlan(input: GenerateInput): TrainingPlan {
   const targetSec = input.durationMin * 60;
-  let candidates = input.exercises.filter((e) => e.scenes.includes(input.scene));
+  const sceneCandidates = input.exercises.filter((e) => e.scenes.includes(input.scene));
+  let candidates = sceneCandidates;
 
   // 地铁约束：零空间、禁高强度
   if (input.scene === 'metro_sit' || input.scene === 'metro_stand') {
@@ -58,11 +59,19 @@ export function generatePlan(input: GenerateInput): TrainingPlan {
     acc += sec;
   }
 
+  const reason =
+    steps.length === 0
+      ? sceneCandidates.length === 0
+        ? '当前场景暂无可用训练动作，请换个场景'
+        : '当前状态下没有可用的训练动作，可换个场景或降低时长'
+      : undefined;
+
   return {
     id: genId('plan'),
     scene: input.scene,
     durationMin: input.durationMin,
     cueText: input.cue?.text,
     steps,
+    ...(reason ? { reason } : {}),
   };
 }

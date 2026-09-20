@@ -103,6 +103,8 @@ export interface TrainingPlan {
   durationMin: number;
   cueText?: string;
   steps: PlanStep[];
+  /** 无法生成计划时的明确原因（steps 为空时给出），用于 UI 提示 */
+  reason?: string;
 }
 
 export interface Session {

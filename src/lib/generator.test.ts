@@ -51,4 +51,11 @@ describe('generatePlan', () => {
       expect(byId.get(s.exerciseId)!.intensity).not.toBe('high');
     }
   });
+
+  it('无动作场景（club）返回空计划并给出明确原因', () => {
+    const plan = generatePlan({ scene: 'club', durationMin: 5, cue: null, feeling: 'normal', exercises });
+    expect(plan.steps.length).toBe(0);
+    expect(plan.reason).toBeTruthy();
+    expect(plan.reason).toContain('暂无可用训练动作');
+  });
 });

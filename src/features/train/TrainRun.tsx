@@ -142,7 +142,7 @@ export default function TrainRun() {
   if (!plan || plan.steps.length === 0) {
     return (
       <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center bg-slate-50 px-5 text-center dark:bg-slate-950">
-        <p className="text-slate-600 dark:text-slate-300">还没有训练计划</p>
+        <p className="text-slate-600 dark:text-slate-300">{plan?.reason ?? '还没有训练计划'}</p>
         <p className="mt-1 text-sm text-slate-400">先选一个训练地点和时长，30 秒生成一组</p>
         <Link to="/train" className="mt-6 h-12 w-full rounded-xl bg-blue-600 leading-[48px] text-white">
           去生成计划
