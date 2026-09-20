@@ -21,6 +21,9 @@ function resultSummary(r: TrainingResult): string {
     const t = r.metrics.total ?? 0;
     return `反应 · 跟上 ${c}/${t}`;
   }
+  if (r.kind === 'reaction_time') {
+    return `反应时 · 平均 ${r.metrics.averageMs ?? 0}ms`;
+  }
   if (r.kind === 'occlusion') {
     return `预判 · ${r.metrics.correct === 1 ? '对' : '错'}（${r.metrics.cutMs}ms）`;
   }
@@ -41,6 +44,15 @@ export default function DataPage() {
   const resultLabel = { much: '明显改善', slight: '略有改善', none: '没有变化', worse: '感觉更差' }[
     latestFeedback?.result ?? 'none'
   ];
+  const reactionResults = results.filter((r) => r.kind === 'reaction');
+  const lastReaction = reactionResults[0];
+  const reactionAcc = lastReaction
+    ? Math.round(((lastReaction.metrics.correct ?? 0) / Math.max(1, lastReaction.metrics.total ?? 0)) * 100)
+    : null;
+  const lastRt = results.find((r) => r.kind === 'reaction_time');
+  const moveLabel = latestFeedback?.movementResult
+    ? ({ much: '明显改善', slight: '略有改善', none: '没有变化', worse: '感觉更差' } as const)[latestFeedback.movementResult]
+    : null;
 
   const bars = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -113,6 +125,20 @@ export default function DataPage() {
             ))}
           </div>
         </>
+      )}
+
+      {(reactionAcc != null || lastRt || moveLabel) && (
+        <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <p className="text-sm font-medium">迁移线索（离台 → 球台）</p>
+          <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
+            {reactionAcc != null && <p>离台反应正确率：{reactionAcc}%</p>}
+            {lastRt && <p>最近反应时：{lastRt.metrics.averageMs}ms</p>}
+            {moveLabel && <p>球台移动迁移：{moveLabel}</p>}
+          </div>
+          <p className="mt-2 text-xs text-slate-400">
+            {moveLabel ? '离台指标与球台验证会逐步对齐；多记录几周后看趋势。' : '去「周末验证」记录移动迁移，才能看出离台训练有没有带到球台。'}
+          </p>
+        </div>
       )}
     </div>
   );

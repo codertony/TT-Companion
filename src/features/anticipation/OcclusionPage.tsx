@@ -9,10 +9,15 @@ const CUT_TIMES = [
   { ms: -100, label: '提前 100ms' },
   { ms: 0, label: '触球瞬间（最简单）' },
 ];
-const spins = ['上旋', '下旋'];
+
+const DIMS = [
+  { id: 'spin', name: '旋转', pool: ['上旋', '下旋'] },
+  { id: 'length', name: '落点', pool: ['长球', '短球'] },
+] as const;
 
 export default function OcclusionPage() {
   const [cutMs, setCutMs] = useState(-200);
+  const [dim, setDim] = useState<'spin' | 'length'>('spin');
   const [phase, setPhase] = useState<'idle' | 'playing' | 'blackout' | 'answered'>('idle');
   const [results, setResults] = useState<OcclusionResult[]>([]);
   const [curCorrect, setCurCorrect] = useState(false);
@@ -21,10 +26,11 @@ export default function OcclusionPage() {
   const timerRef = useRef<number | null>(null);
   const addResult = useResultsStore((s) => s.add);
 
+  const pool = DIMS.find((d) => d.id === dim)!.pool;
   const inTrial = phase === 'playing' || phase === 'blackout';
 
   const trial = () => {
-    trueAnswerRef.current = spins[Math.floor(Math.random() * 2)];
+    trueAnswerRef.current = pool[Math.floor(Math.random() * pool.length)];
     setTrialNo((n) => n + 1);
     setPhase('playing');
     const delay = Math.max(100, 600 - Math.abs(cutMs));
@@ -35,7 +41,7 @@ export default function OcclusionPage() {
     const correct = v === trueAnswerRef.current;
     setCurCorrect(correct);
     setResults((r) => [...r, { cutMs, correct }]);
-    addResult({ kind: 'occlusion', metrics: { correct: correct ? 1 : 0, cutMs } });
+    addResult({ kind: 'occlusion', metrics: { correct: correct ? 1 : 0, cutMs, dim: dim === 'spin' ? 0 : 1 } });
     setPhase('answered');
   };
 
@@ -61,6 +67,18 @@ export default function OcclusionPage() {
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         黑屏越早，留给你的线索越少，难度越高。
       </p>
+
+      <div className="mt-4 flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        {DIMS.map((d) => (
+          <button
+            key={d.id}
+            onClick={() => setDim(d.id)}
+            className={`flex-1 rounded-lg py-2 text-sm ${dim === d.id ? 'bg-white shadow-sm dark:bg-slate-700' : ''}`}
+          >
+            判断{d.name}
+          </button>
+        ))}
+      </div>
 
       <div className="mt-4 flex flex-col gap-2">
         {CUT_TIMES.map((c) => (
@@ -91,9 +109,9 @@ export default function OcclusionPage() {
         {phase === 'blackout' && (
           <div className="text-center">
             <p className="text-lg font-semibold">■ 黑屏于触球前 {Math.abs(cutMs)}ms</p>
-            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">旋转？</p>
+            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{DIMS.find((d) => d.id === dim)!.name}？</p>
             <div className="mt-2 flex gap-3">
-              {spins.map((s) => (
+              {pool.map((s) => (
                 <button key={s} onClick={() => judge(s)} className="h-12 w-32 rounded-xl bg-slate-100 text-sm dark:bg-slate-800">
                   {s}
                 </button>

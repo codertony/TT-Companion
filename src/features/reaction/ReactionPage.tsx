@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useReaction } from '../../hooks/useReaction';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useResultsStore } from '../../stores/resultsStore';
+import ReactionTimeTest from '../../components/ReactionTimeTest';
 import type { ReactionMode } from '../../types';
 
 interface ModeDef {
@@ -85,8 +86,26 @@ export default function ReactionPage() {
   });
   const addResult = useResultsStore((s) => s.add);
   const reportedRef = useRef(false);
+  const [tab, setTab] = useState<'follow' | 'time'>('follow');
 
   const currentMode = MODES.find((m) => m.id === mode)!;
+
+  const toggle = (
+    <div className="mt-4 flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+      <button
+        onClick={() => setTab('follow')}
+        className={`flex-1 rounded-lg py-2 text-sm ${tab === 'follow' ? 'bg-white shadow-sm dark:bg-slate-700' : ''}`}
+      >
+        跟随反应
+      </button>
+      <button
+        onClick={() => setTab('time')}
+        className={`flex-1 rounded-lg py-2 text-sm ${tab === 'time' ? 'bg-white shadow-sm dark:bg-slate-700' : ''}`}
+      >
+        测反应时
+      </button>
+    </div>
+  );
 
   useEffect(() => {
     if (phase === 'finished' && started && !reportedRef.current) {
@@ -117,6 +136,12 @@ export default function ReactionPage() {
         </Link>
       </div>
 
+      {toggle}
+
+      {tab === 'time' ? (
+        <ReactionTimeTest />
+      ) : (
+        <>
       {!started && (
         <>
           <div className="mt-4 rounded-2xl bg-blue-50 p-4 dark:bg-blue-950">
@@ -202,6 +227,8 @@ export default function ReactionPage() {
             换个模式
           </button>
         </div>
+      )}
+        </>
       )}
     </div>
   );

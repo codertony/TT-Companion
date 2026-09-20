@@ -140,7 +140,7 @@ export interface Feedback {
 }
 
 /** 专项训练结果类型（统一结果模型，Phase 0） */
-export type ResultKind = 'reaction' | 'occlusion' | 'tension';
+export type ResultKind = 'reaction' | 'reaction_time' | 'occlusion' | 'tension';
 
 /** 统一训练结果：反应/预判/张力等专项训练的持久化结果，可跨页面查看 */
 export interface TrainingResult {
