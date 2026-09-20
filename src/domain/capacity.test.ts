@@ -56,4 +56,19 @@ describe('deriveCapacityState', () => {
     ])!;
     expect(s.status).toBe('normal');
   });
+
+  it('标量：俯卧撑低于阈值 → below', () => {
+    const s = deriveCapacityState('pushup', [res('pushup', undefined, undefined, 3)])!;
+    expect(s.status).toBe('below');
+  });
+
+  it('标量：俯卧撑达到阈值 → normal', () => {
+    const s = deriveCapacityState('pushup', [res('pushup', undefined, undefined, 6)])!;
+    expect(s.status).toBe('normal');
+  });
+
+  it('标量：RPE 高于阈值 → below（越低越好）', () => {
+    const s = deriveCapacityState('walk_rpe', [res('walk_rpe', undefined, undefined, 8)])!;
+    expect(s.status).toBe('below');
+  });
 });
