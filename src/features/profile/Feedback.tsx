@@ -4,11 +4,11 @@ import { useFeedbackStore } from '../../stores/feedbackStore';
 import { today } from '../../lib/cue';
 import type { FeedbackResult } from '../../types';
 
-const options: { id: FeedbackResult; label: string; color: string }[] = [
-  { id: 'much', label: '明显改善', color: 'bg-emerald-600' },
-  { id: 'slight', label: '略有改善', color: 'bg-emerald-400' },
-  { id: 'none', label: '没有变化', color: 'bg-slate-400' },
-  { id: 'worse', label: '感觉更差', color: 'bg-orange-400' },
+const options: { id: FeedbackResult; label: string; short: string; color: string }[] = [
+  { id: 'much', label: '明显改善', short: '明显', color: 'bg-emerald-600' },
+  { id: 'slight', label: '略有改善', short: '略有', color: 'bg-emerald-400' },
+  { id: 'none', label: '没有变化', short: '没变', color: 'bg-slate-400' },
+  { id: 'worse', label: '感觉更差', short: '更差', color: 'bg-orange-400' },
 ];
 
 export default function Feedback() {
@@ -16,6 +16,7 @@ export default function Feedback() {
   const submitFeedback = useCueStore((s) => s.submitFeedback);
   const addFeedback = useFeedbackStore((s) => s.add);
   const [result, setResult] = useState<FeedbackResult | null>(null);
+  const [movement, setMovement] = useState<FeedbackResult | null>(null);
   const [note, setNote] = useState('');
   const [submitted, setSubmitted] = useState<FeedbackResult | 'skipped' | null>(null);
 
@@ -47,7 +48,13 @@ export default function Feedback() {
 
   const submit = () => {
     if (!result) return;
-    const f = { date: today(), cueId: primary.id, result, note: note.trim() || undefined };
+    const f = {
+      date: today(),
+      cueId: primary.id,
+      result,
+      note: note.trim() || undefined,
+      movementResult: movement ?? undefined,
+    };
     addFeedback(f);
     submitFeedback(f);
     setSubmitted(result);
@@ -79,6 +86,22 @@ export default function Feedback() {
           >
             <span className={`h-2.5 w-2.5 rounded-full ${o.color}`} />
             {o.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="mt-6 text-sm font-medium text-slate-500 dark:text-slate-400">移动迁移 · 两点步法（可选）</p>
+      <p className="mt-1 text-xs text-slate-400">定点还行，左右两点移动后下肢还稳不稳？</p>
+      <div className="mt-2 grid grid-cols-4 gap-2">
+        {options.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => setMovement(o.id)}
+            className={`h-12 rounded-xl text-xs ${
+              movement === o.id ? 'bg-blue-600 text-white' : 'bg-white ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800'
+            }`}
+          >
+            {o.short}
           </button>
         ))}
       </div>

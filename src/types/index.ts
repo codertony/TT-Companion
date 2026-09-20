@@ -135,6 +135,8 @@ export interface Feedback {
   cueId: string;
   result: FeedbackResult;
   note?: string;
+  /** 移动迁移（两点步法）验证结果，纵向切片用于评估下肢稳定是否迁移 */
+  movementResult?: FeedbackResult;
 }
 
 /** 专项训练结果类型（统一结果模型，Phase 0） */
