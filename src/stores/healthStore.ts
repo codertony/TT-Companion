@@ -4,9 +4,9 @@ import { todayStr } from '../lib/date';
 
 export interface HealthRecord {
   date: string;
+  height?: number; // cm
   weight?: number; // kg
-  waist?: number; // cm
-  restingHr?: number; // bpm
+  restingHr?: number; // bpm（静息心率，早晨起床前测）
 }
 
 interface HealthState {

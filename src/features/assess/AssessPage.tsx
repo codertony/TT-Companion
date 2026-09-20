@@ -96,39 +96,44 @@ function AssessForm({ id, meta }: { id: string; meta: AssessmentMeta }) {
 function HealthSection() {
   const records = useHealthStore((s) => s.records);
   const record = useHealthStore((s) => s.record);
+  const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
-  const [waist, setWaist] = useState('');
   const [hr, setHr] = useState('');
   const latest = latestHealth(records);
 
+  const bmi =
+    latest?.height && latest.weight ? (latest.weight / (latest.height / 100) ** 2).toFixed(1) : null;
+
   const save = () => {
     record({
+      height: height ? Number.parseFloat(height) : undefined,
       weight: weight ? Number.parseFloat(weight) : undefined,
-      waist: waist ? Number.parseFloat(waist) : undefined,
       restingHr: hr ? Number.parseFloat(hr) : undefined,
     });
+    setHeight('');
     setWeight('');
-    setWaist('');
     setHr('');
   };
 
   return (
     <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
       <div className="flex items-center justify-between">
-        <p className="font-medium">健康趋势（可选）</p>
+        <p className="font-medium">身体与恢复（可选）</p>
         {latest && <span className="text-xs text-slate-400">最近 {latest.date.slice(5)}</span>}
       </div>
       <div className="mt-2 grid grid-cols-3 gap-2">
+        <input type="number" inputMode="decimal" placeholder="身高cm" value={height} onChange={(e) => setHeight(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
         <input type="number" inputMode="decimal" placeholder="体重kg" value={weight} onChange={(e) => setWeight(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
-        <input type="number" inputMode="decimal" placeholder="腰围cm" value={waist} onChange={(e) => setWaist(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
-        <input type="number" inputMode="decimal" placeholder="心率" value={hr} onChange={(e) => setHr(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
+        <input type="number" inputMode="decimal" placeholder="静息心率" value={hr} onChange={(e) => setHr(e.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
       </div>
+      <p className="mt-1 text-xs text-slate-400">静息心率：早晨起床前测，看 7–14 天趋势（越低通常心肺越好）</p>
       <button onClick={save} className="mt-2 h-12 w-full rounded-xl bg-blue-600 text-sm font-medium text-white">
         记录
       </button>
       {latest && (
         <p className="mt-2 text-xs text-slate-400">
-          最近：{latest.weight != null ? `${latest.weight}kg` : '—'} · {latest.waist != null ? `${latest.waist}cm` : '—'} · {latest.restingHr != null ? `${latest.restingHr}bpm` : '—'}
+          最近：{latest.height != null ? `${latest.height}cm` : '—'} · {latest.weight != null ? `${latest.weight}kg` : '—'} · {latest.restingHr != null ? `${latest.restingHr}bpm` : '—'}
+          {bmi && <span className="ml-1">· BMI {bmi}</span>}
         </p>
       )}
     </div>
