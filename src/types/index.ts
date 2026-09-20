@@ -193,3 +193,105 @@ export interface OcclusionConfig {
 
 /** 张力等级 0–10 */
 export type TensionLevel = number;
+
+// ===== Epic A：领域内核（能力评估 / 安全 / limiter）=====
+
+export type DataSource =
+  | 'manual'
+  | 'assessment'
+  | 'csv_import'
+  | 'device_import'
+  | 'health_connect'
+  | 'healthkit';
+
+/** 能力域（二维能力地图：一般身体能力 × 乒乓球表现能力） */
+export type CapacityDomain =
+  | 'general_health'
+  | 'physical_base'
+  | 'sport_prep'
+  | 'perception'
+  | 'technique';
+
+export type CapacityId =
+  | 'aerobic'
+  | 'strength'
+  | 'mobility'
+  | 'balance'
+  | 'joint_control'
+  | 'start_stop'
+  | 'dynamic_stability'
+  | 'ssc'
+  | 'agility'
+  | 'tension'
+  | 'visual_search'
+  | 'anticipation'
+  | 'choice_reaction'
+  | 'rhythm'
+  | 'proprioception'
+  | 'stroke_technique'
+  | 'consistency'
+  | 'movement_technique'
+  | 'fatigue_technique';
+
+/** 原始测量（不可被派生分数覆盖） */
+export interface Observation {
+  id: string;
+  metricId: string;
+  value: number;
+  unit?: string;
+  observedAt: number;
+  source: DataSource;
+  protocolVersion?: string;
+}
+
+/** 协议结果（如单腿坐站左 8 / 右 12） */
+export interface AssessmentResult {
+  id: string;
+  assessmentId: string;
+  date: string; // YYYY-MM-DD
+  left?: number;
+  right?: number;
+  value?: number;
+  unit?: string;
+  protocolVersion: string;
+}
+
+export type CapacityStatus = 'below' | 'normal' | 'above' | 'unknown';
+
+export interface CapacityState {
+  capacityId: CapacityId;
+  domain: CapacityDomain;
+  status: CapacityStatus;
+  confidence: 'low' | 'medium' | 'high';
+  basisCount: number;
+}
+
+export interface CheckinInput {
+  sleepHours?: number;
+  fatigue?: number; // 1–10
+  painParts?: string[];
+  warningSymptoms?: string[]; // 胸痛/晕厥/异常气促等
+  restingHr?: number;
+}
+
+export interface SafetyDecision {
+  state: 'green' | 'yellow' | 'red';
+  reasons: string[];
+  allowedIntensity: 'none' | 'low' | 'medium' | 'high';
+  blockedExerciseTags: string[];
+  ruleSetVersion: string;
+}
+
+export interface LimiterFinding {
+  capacityId: CapacityId;
+  priority: number;
+  deficit: number;
+  goalRelevance: number;
+  transferEvidence: number;
+  dataConfidence: number;
+  trainability: number;
+  rationale: string;
+  recommendation: string;
+  retestProtocol: string;
+  invalidatedBy: string;
+}
