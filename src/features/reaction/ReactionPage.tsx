@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useReaction } from '../../hooks/useReaction';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { useResultsStore } from '../../stores/resultsStore';
 import type { ReactionMode } from '../../types';
 
 interface ModeDef {
@@ -82,13 +83,23 @@ export default function ReactionPage() {
     gapRange: reaction.gapRange,
     durationSec: reaction.durationSec,
   });
+  const addResult = useResultsStore((s) => s.add);
+  const reportedRef = useRef(false);
 
   const currentMode = MODES.find((m) => m.id === mode)!;
+
+  useEffect(() => {
+    if (phase === 'finished' && started && !reportedRef.current) {
+      reportedRef.current = true;
+      addResult({ kind: 'reaction', mode, metrics: { correct, skipped, total: count } });
+    }
+  }, [phase, started, correct, skipped, count, mode, addResult]);
 
   const begin = () => {
     setCorrect(0);
     setSkipped(0);
     setStarted(true);
+    reportedRef.current = false;
     start();
   };
 

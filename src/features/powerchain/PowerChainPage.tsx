@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import BodyDiagram, { type BodyPart } from '../../components/BodyDiagram';
 import TensionScale from '../../components/TensionScale';
 import { getExercise } from '../../data/exercises';
+import { useResultsStore } from '../../stores/resultsStore';
 
 interface ChainStage {
   id: string;
@@ -41,6 +42,8 @@ const chainGroups: { title: string; stages: ChainStage[] }[] = [
 export default function PowerChainPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tension, setTension] = useState(3);
+  const [saved, setSaved] = useState(false);
+  const addResult = useResultsStore((s) => s.add);
   const selected = selectedId ? getExercise(selectedId) : null;
   const selectedRegion = chainGroups
     .flatMap((g) => g.stages)
@@ -111,7 +114,22 @@ export default function PowerChainPage() {
 
       <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">张力自评（0–10）</p>
       <div className="mt-3 rounded-2xl bg-white p-5 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-        <TensionScale value={tension} onChange={setTension} />
+        <TensionScale
+          value={tension}
+          onChange={(v) => {
+            setTension(v);
+            setSaved(false);
+          }}
+        />
+        <button
+          onClick={() => {
+            addResult({ kind: 'tension', metrics: { tension } });
+            setSaved(true);
+          }}
+          className="mt-3 h-12 w-full rounded-xl bg-blue-600 text-sm font-medium text-white"
+        >
+          {saved ? '已记录 ✓' : '记录本次张力'}
+        </button>
         <p className="mt-2 text-center text-xs text-slate-400">
           {tension <= 3
             ? '松：准备与还原阶段应保持'

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { accuracyByCut, earliestCueLevel, type OcclusionResult } from '../../lib/occlusion';
+import { useResultsStore } from '../../stores/resultsStore';
 
 const CUT_TIMES = [
   { ms: -300, label: '提前 300ms（最难）' },
@@ -18,6 +19,7 @@ export default function OcclusionPage() {
   const [trialNo, setTrialNo] = useState(0);
   const trueAnswerRef = useRef<string>('');
   const timerRef = useRef<number | null>(null);
+  const addResult = useResultsStore((s) => s.add);
 
   const inTrial = phase === 'playing' || phase === 'blackout';
 
@@ -33,6 +35,7 @@ export default function OcclusionPage() {
     const correct = v === trueAnswerRef.current;
     setCurCorrect(correct);
     setResults((r) => [...r, { cutMs, correct }]);
+    addResult({ kind: 'occlusion', metrics: { correct: correct ? 1 : 0, cutMs } });
     setPhase('answered');
   };
 

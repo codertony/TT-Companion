@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReaction } from '../hooks/useReaction';
 import type { ReactionMode } from '../types';
 
@@ -15,21 +15,32 @@ export default function ReactionTrainer({
   gapRange,
   durationSec,
   onFinished,
+  onResult,
 }: {
   mode: ReactionMode;
   displayMs: number;
   gapRange: [number, number];
   durationSec: number;
   onFinished?: () => void;
+  onResult?: (r: { correct: number; skipped: number; total: number }) => void;
 }) {
   const { phase, stimulus, count, start, stop } = useReaction({ mode, displayMs, gapRange, durationSec });
   const [correct, setCorrect] = useState(0);
   const [skipped, setSkipped] = useState(0);
+  const reportedRef = useRef(false);
 
   useEffect(() => {
+    reportedRef.current = false;
     start();
     return () => stop();
   }, [start, stop]);
+
+  useEffect(() => {
+    if (phase === 'finished' && !reportedRef.current) {
+      reportedRef.current = true;
+      onResult?.({ correct, skipped, total: count });
+    }
+  }, [phase, correct, skipped, count, onResult]);
 
   if (phase === 'finished') {
     return (

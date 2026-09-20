@@ -12,18 +12,32 @@ import { PROMPT_META } from '../../lib/prompt';
 import ProgressRing from '../../components/ProgressRing';
 import ReactionTrainer from '../../components/ReactionTrainer';
 import { useSettingsStore } from '../../stores/settingsStore';
-import type { PlanStep } from '../../types';
+import { useResultsStore } from '../../stores/resultsStore';
+import type { PlanStep, RunEventType } from '../../types';
 
-function StepRunner({ step, onDone }: { step: PlanStep; onDone: () => void }) {
+function StepRunner({
+  step,
+  stepIdx,
+  logEvent,
+  onDone,
+  onSkip,
+}: {
+  step: PlanStep;
+  stepIdx: number;
+  logEvent: (t: RunEventType, i: number) => void;
+  onDone: () => void;
+  onSkip: () => void;
+}) {
   if (step.mode) {
     return <ReactionStep step={step} onDone={onDone} />;
   }
-  return <TimedStep step={step} onDone={onDone} />;
+  return <TimedStep step={step} stepIdx={stepIdx} logEvent={logEvent} onDone={onDone} onSkip={onSkip} />;
 }
 
 function ReactionStep({ step, onDone }: { step: PlanStep; onDone: () => void }) {
   const exercise = getExercise(step.exerciseId);
   const reaction = useSettingsStore((s) => s.reaction);
+  const addResult = useResultsStore((s) => s.add);
   return (
     <div className="flex flex-1 flex-col">
       <p className="text-center text-2xl font-semibold text-slate-900 dark:text-white">{step.name}</p>
@@ -36,12 +50,31 @@ function ReactionStep({ step, onDone }: { step: PlanStep; onDone: () => void }) 
         gapRange={reaction.gapRange}
         durationSec={step.durationSec}
         onFinished={onDone}
+        onResult={(r) =>
+          addResult({
+            kind: 'reaction',
+            mode: step.mode,
+            metrics: { correct: r.correct, skipped: r.skipped, total: r.total },
+          })
+        }
       />
     </div>
   );
 }
 
-function TimedStep({ step, onDone }: { step: PlanStep; onDone: () => void }) {
+function TimedStep({
+  step,
+  stepIdx,
+  logEvent,
+  onDone,
+  onSkip,
+}: {
+  step: PlanStep;
+  stepIdx: number;
+  logEvent: (t: RunEventType, i: number) => void;
+  onDone: () => void;
+  onSkip: () => void;
+}) {
   const exercise = getExercise(step.exerciseId);
   const { remainSec, running, pause, resume } = useCountdown(step.durationSec, onDone);
   const elapsed = step.durationSec - remainSec;
@@ -113,12 +146,20 @@ function TimedStep({ step, onDone }: { step: PlanStep; onDone: () => void }) {
 
       <div className="mt-6 flex w-full items-center gap-3">
         <button
-          onClick={running ? pause : resume}
+          onClick={() => {
+            if (running) {
+              pause();
+              logEvent('pause', stepIdx);
+            } else {
+              resume();
+              logEvent('resume', stepIdx);
+            }
+          }}
           className="h-12 flex-1 rounded-xl bg-slate-200 text-sm font-medium dark:bg-slate-700 dark:text-white"
         >
           {running ? '暂停' : '继续'}
         </button>
-        <button onClick={onDone} className="h-12 rounded-xl px-5 text-sm text-slate-400 dark:text-slate-500">
+        <button onClick={onSkip} className="h-12 rounded-xl px-5 text-sm text-slate-400 dark:text-slate-500">
           跳过
         </button>
       </div>
@@ -132,9 +173,12 @@ export default function TrainRun() {
   const scene = useTrainStore((s) => s.scene);
   const durationMin = useTrainStore((s) => s.durationMin);
   const feeling = useTrainStore((s) => s.feeling);
+  const stepIdx = useTrainStore((s) => s.stepIdx);
+  const setStepIdx = useTrainStore((s) => s.setStepIdx);
+  const startedAt = useTrainStore((s) => s.startedAt);
+  const logEvent = useTrainStore((s) => s.logEvent);
   const cue = useCueStore((s) => s.primary);
   const addSession = useSessionStore((s) => s.add);
-  const [stepIdx, setStepIdx] = useState(0);
   const [done, setDone] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
   const savedRef = useRef(false);
@@ -157,6 +201,7 @@ export default function TrainRun() {
   const finish = () => {
     if (!savedRef.current) {
       savedRef.current = true;
+      const actualSec = startedAt ? Math.round((Date.now() - startedAt) / 1000) : undefined;
       addSession({
         id: genId('s'),
         date: today(),
@@ -167,12 +212,15 @@ export default function TrainRun() {
         feeling,
         completed: true,
         completedAt: Date.now(),
+        ...(actualSec != null ? { actualSec } : {}),
       });
     }
+    setStepIdx(plan.steps.length);
     setDone(true);
   };
 
-  const next = () => {
+  const next = (reason: RunEventType = 'complete') => {
+    logEvent(reason, stepIdx);
     if (stepIdx + 1 < plan.steps.length) setStepIdx(stepIdx + 1);
     else finish();
   };
@@ -228,7 +276,14 @@ export default function TrainRun() {
       <div className="mt-3 rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
         {plan.cueText ? `本周 CUE：${plan.cueText}` : '专注当下'}
       </div>
-      <StepRunner key={stepIdx} step={step} onDone={next} />
+      <StepRunner
+        key={stepIdx}
+        step={step}
+        stepIdx={stepIdx}
+        logEvent={logEvent}
+        onDone={() => next('complete')}
+        onSkip={() => next('skip')}
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import CueCard from '../../components/CueCard';
 import ProgressRing from '../../components/ProgressRing';
 import { useCueStore } from '../../stores/cueStore';
 import { useSessionStore } from '../../stores/sessionStore';
+import { useTrainStore } from '../../stores/trainStore';
 import { isThisWeek, todayStr } from '../../lib/date';
 
 const quickLinks = [
@@ -25,8 +26,12 @@ function greeting(): string {
 export default function Home() {
   const primary = useCueStore((s) => s.primary);
   const sessions = useSessionStore((s) => s.sessions);
+  const plan = useTrainStore((s) => s.plan);
+  const stepIdx = useTrainStore((s) => s.stepIdx);
+  const startedAt = useTrainStore((s) => s.startedAt);
   const weekDays = new Set(sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date)).size;
   const todayDone = sessions.some((s) => s.date === todayStr());
+  const resumable = !!(plan && startedAt && plan.steps.length > 0 && stepIdx < plan.steps.length);
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
@@ -44,6 +49,18 @@ export default function Home() {
       <div className="mt-6">
         <CueCard cue={primary} />
       </div>
+
+      {resumable && plan && (
+        <Link
+          to="/train/run"
+          className="mt-4 block rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100 active:scale-[0.98] dark:bg-amber-950 dark:ring-amber-900"
+        >
+          <p className="font-medium text-amber-800 dark:text-amber-300">继续上次训练</p>
+          <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">
+            第 {stepIdx + 1}/{plan.steps.length} 步 · 点此继续
+          </p>
+        </Link>
+      )}
 
       <Link
         to="/train"

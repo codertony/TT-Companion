@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
 import { useCueStore } from '../../stores/cueStore';
 import { useFeedbackStore } from '../../stores/feedbackStore';
+import { useResultsStore } from '../../stores/resultsStore';
 import { isThisWeek, streakDays, toDateStr } from '../../lib/date';
+import type { TrainingResult } from '../../types';
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -13,11 +15,24 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+function resultSummary(r: TrainingResult): string {
+  if (r.kind === 'reaction') {
+    const c = r.metrics.correct ?? 0;
+    const t = r.metrics.total ?? 0;
+    return `反应 · 跟上 ${c}/${t}`;
+  }
+  if (r.kind === 'occlusion') {
+    return `预判 · ${r.metrics.correct === 1 ? '对' : '错'}（${r.metrics.cutMs}ms）`;
+  }
+  return `张力 · ${r.metrics.tension ?? 0}/10`;
+}
+
 export default function DataPage() {
   const sessions = useSessionStore((s) => s.sessions);
   const history = useCueStore((s) => s.history);
   const primary = useCueStore((s) => s.primary);
   const feedback = useFeedbackStore((s) => s.feedback);
+  const results = useResultsStore((s) => s.results);
   const weekDays = new Set(sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date)).size;
   const streak = streakDays(sessions.map((s) => s.date));
   const total = sessions.length;
@@ -34,7 +49,7 @@ export default function DataPage() {
   });
   const maxCount = Math.max(1, ...bars.map((b) => b.count));
 
-  if (total === 0) {
+  if (total === 0 && results.length === 0) {
     return (
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center bg-slate-50 px-5 text-center text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <p className="text-lg font-semibold">还没有训练数据</p>
@@ -85,6 +100,20 @@ export default function DataPage() {
         )}
         <p className="mt-2 text-xs text-slate-400">累计达成 {history.filter((c) => c.status === 'done').length} 个</p>
       </div>
+
+      {results.length > 0 && (
+        <>
+          <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">最近专项结果</p>
+          <div className="mt-2 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+            {results.slice(0, 5).map((r) => (
+              <div key={r.id} className="flex items-center justify-between border-b border-slate-50 py-1.5 text-sm last:border-0 dark:border-slate-800">
+                <span className="text-slate-600 dark:text-slate-300">{resultSummary(r)}</span>
+                <span className="text-xs text-slate-400">{r.date.slice(5)}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -117,6 +117,17 @@ export interface Session {
   feeling: Feeling;
   completed: boolean;
   completedAt: number;
+  /** 真实训练时长（秒），由 startedAt → completedAt 计算 */
+  actualSec?: number;
+}
+
+/** 训练执行事件（统一执行模型，Phase 0 最小集） */
+export type RunEventType = 'start' | 'pause' | 'resume' | 'complete' | 'skip';
+
+export interface RunEvent {
+  at: number; // timestamp ms
+  type: RunEventType;
+  stepIdx: number;
 }
 
 export interface Feedback {
@@ -124,6 +135,19 @@ export interface Feedback {
   cueId: string;
   result: FeedbackResult;
   note?: string;
+}
+
+/** 专项训练结果类型（统一结果模型，Phase 0） */
+export type ResultKind = 'reaction' | 'occlusion' | 'tension';
+
+/** 统一训练结果：反应/预判/张力等专项训练的持久化结果，可跨页面查看 */
+export interface TrainingResult {
+  id: string;
+  kind: ResultKind;
+  date: string; // YYYY-MM-DD
+  at: number; // timestamp ms
+  mode?: ReactionMode;
+  metrics: Record<string, number>;
 }
 
 export interface Settings {
