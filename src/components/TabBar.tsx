@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
+import { AppIcon, type AppIconName } from './AppIcon';
 
-const tabs = [
-  { to: '/', label: '首页', icon: '🏠' },
-  { to: '/train', label: '训练', icon: '⚡' },
-  { to: '/data', label: '数据', icon: '📊' },
-  { to: '/profile', label: '我的', icon: '👤' },
+const tabs: { to: string; label: string; icon: AppIconName }[] = [
+  { to: '/', label: '首页', icon: 'home' },
+  { to: '/train', label: '训练', icon: 'activity' },
+  { to: '/data', label: '数据', icon: 'chartBar' },
+  { to: '/profile', label: '我的', icon: 'user' },
 ];
 
 export default function TabBar() {
@@ -22,7 +23,7 @@ export default function TabBar() {
               }`
             }
           >
-            <span className="text-lg leading-none">{t.icon}</span>
+            <AppIcon name={t.icon} className="h-6 w-6" />
             <span>{t.label}</span>
           </NavLink>
         ))}

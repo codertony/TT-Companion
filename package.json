@@ -14,6 +14,8 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
+    "@iconify-icons/tabler": "^2.0.1",
+    "@iconify/react": "^6.0.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.4",
