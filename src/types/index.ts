@@ -302,3 +302,140 @@ export interface LimiterFinding {
   retestProtocol: string;
   invalidatedBy: string;
 }
+
+// ===== V3：台上训练编排器（Table Training）=====
+
+/** 七层进阶模型 L1–L7 */
+export type ProgressionLayerId = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7';
+
+/** 是否知道下一球 */
+export type BallKnowledge = '知道' | '部分知道' | '不知道';
+
+export interface ProgressionLayer {
+  id: ProgressionLayerId;
+  name: string;
+  ballKnowledge: BallKnowledge;
+  purpose: string;
+  coreTraining: string;
+}
+
+/** 随机度 */
+export type Randomness = 'fixed' | 'semi' | 'random';
+
+/** 球源 */
+export type BallSource = 'partner' | 'robot' | 'multiball';
+
+/** 球搭子水平 */
+export type PartnerLevel = 'beginner' | 'higher';
+
+/** 训练套路（八要素 + 自我教练统一模板） */
+export interface Drill {
+  id: string;
+  layer: ProgressionLayerId;
+  target: string; // 目标技术
+  ballSources: BallSource[]; // 球源
+  rule: string; // 规则（训练方法）
+  randomness: Randomness; // 随机度
+  focusPoint: string; // 训练者关注点（唯一主注意点）
+  partnerTask: string; // 搭档任务
+  upgradeCondition: string; // 升级条件（进阶阈值）
+  nextDrillId?: string; // 下一等级
+  correctFeel: string; // 正确体感
+  commonErrorFeel: string; // 常见错误体感
+  selfCheck: string; // 自检指标（五问自检）
+  retentionTest: string; // 保持测试
+  transferTest: string; // 迁移测试
+}
+
+/** 目标技术（训练生成公式的输入） */
+export type TargetTechnique =
+  | 'forehand_drive'
+  | 'backhand_drive'
+  | 'forehand_loop'
+  | 'backhand_loop'
+  | 'forehand_backspin'
+  | 'backhand_backspin'
+  | 'two_point_forehand'
+  | 'fh_bh_switch'
+  | 'serve_attack'
+  | 'receive_attack';
+
+export type TableSegmentKind =
+  | 'warmup'
+  | 'basic'
+  | 'core'
+  | 'movement'
+  | 'semi'
+  | 'serve_receive'
+  | 'open'
+  | 'match';
+
+export interface TableSegment {
+  kind: TableSegmentKind;
+  name: string;
+  minutes: number;
+}
+
+/** 训练配比（五类） */
+export interface TableRatio {
+  fixed: number; // 固定动作
+  footwork: number; // 固定脚步
+  semi: number; // 半随机
+  serveReceive: number; // 发接发前三板
+  random: number; // 完全随机/比赛
+  rationale: string[];
+}
+
+/** 台上训练课记录 */
+export interface TableSession {
+  id: string;
+  date: string;
+  target: string;
+  ballSource: BallSource;
+  durationMin: number;
+  segments: TableSegment[];
+  completed: boolean;
+  completedAt: number;
+}
+
+// ===== V3：自我教练闭环（Self Coaching Loop）=====
+
+/** 五问自检结果（准·净·松·顺·回） */
+export interface SelfCheckResult {
+  accurate: boolean; // 准
+  clean: boolean; // 净
+  relaxed: boolean; // 松
+  rhythm: boolean; // 顺
+  recovered: boolean; // 回
+}
+
+export type GateId = 'stability' | 'quality' | 'retention' | 'transfer';
+
+export interface Gate {
+  id: GateId;
+  name: string;
+  description: string;
+  threshold: string;
+}
+
+/** 进阶算法 Level A–G */
+export type ProgressionLevel = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
+
+/** 最常见失误分类 */
+export type ErrorKind = 'net' | 'out' | 'edge' | 'late' | 'jammed' | 'flat_foot' | 'slow_recovery';
+
+/** 自检记录（六指标 + 最常见失误分类） */
+export interface SelfCheckRecord {
+  id: string;
+  date: string;
+  drillId: string;
+  successMade: number; // 上台数
+  successTotal: number; // 总数
+  longestStreak: number; // 最长连续
+  placementMade: number; // 落点命中数
+  placementTotal: number; // 落点总数
+  rpe: number; // 主观用力 1–10
+  check: SelfCheckResult; // 动作质量（五问）
+  focusPoint: string; // 当前主注意点
+  topError: ErrorKind; // 最常见失误
+}

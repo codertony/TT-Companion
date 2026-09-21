@@ -108,12 +108,20 @@ export default function Home() {
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{safety.reasons.join('；')}</p>
         </div>
       ) : (
-        <Link
-          to="/train"
-          className="mt-6 block h-12 rounded-xl bg-blue-600 text-center text-base font-medium leading-[48px] text-white transition active:scale-[0.98]"
-        >
-          开始训练 →
-        </Link>
+        <>
+          <Link
+            to="/train"
+            className="mt-6 block h-12 rounded-xl bg-blue-600 text-center text-base font-medium leading-[48px] text-white transition active:scale-[0.98]"
+          >
+            开始训练 →
+          </Link>
+          <Link
+            to="/table"
+            className="mt-3 block h-12 rounded-xl bg-white text-center text-base font-medium leading-[48px] text-blue-600 ring-1 ring-blue-200 transition active:scale-[0.98] dark:bg-slate-900 dark:text-blue-400 dark:ring-blue-900"
+          >
+            台上训练编排 →（周末上台）
+          </Link>
+        </>
       )}
 
       <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">专项训练</p>

@@ -3,6 +3,7 @@ import { useSessionStore } from '../../stores/sessionStore';
 import { useCueStore } from '../../stores/cueStore';
 import { useFeedbackStore } from '../../stores/feedbackStore';
 import { useResultsStore } from '../../stores/resultsStore';
+import { useTableStore } from '../../stores/tableStore';
 import { isThisWeek, streakDays, toDateStr } from '../../lib/date';
 import type { TrainingResult } from '../../types';
 
@@ -36,6 +37,7 @@ export default function DataPage() {
   const primary = useCueStore((s) => s.primary);
   const feedback = useFeedbackStore((s) => s.feedback);
   const results = useResultsStore((s) => s.results);
+  const tableSessions = useTableStore((s) => s.sessions);
   const weekDays = new Set(sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date)).size;
   const streak = streakDays(sessions.map((s) => s.date));
   const total = sessions.length;
@@ -61,7 +63,7 @@ export default function DataPage() {
   });
   const maxCount = Math.max(1, ...bars.map((b) => b.count));
 
-  if (total === 0 && results.length === 0) {
+  if (total === 0 && results.length === 0 && tableSessions.length === 0) {
     return (
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center bg-slate-50 px-5 text-center text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <p className="text-lg font-semibold">还没有训练数据</p>
@@ -125,6 +127,22 @@ export default function DataPage() {
             ))}
           </div>
         </>
+      )}
+
+      {tableSessions.length > 0 && (
+        <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <p className="text-sm font-medium">最近台上训练</p>
+          <div className="mt-2">
+            {tableSessions.slice(0, 5).map((t) => (
+              <div key={t.id} className="flex items-center justify-between border-b border-slate-50 py-1.5 text-sm last:border-0 dark:border-slate-800">
+                <span className="text-slate-600 dark:text-slate-300">
+                  {t.target} · {t.ballSource === 'partner' ? '球搭子' : t.ballSource === 'robot' ? '发球机' : '多球'}
+                </span>
+                <span className="text-xs text-slate-400">{t.date.slice(5)} · {t.durationMin}min</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {(reactionAcc != null || lastRt || moveLabel) && (

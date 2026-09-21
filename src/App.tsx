@@ -20,6 +20,8 @@ import MentalRehearsalPage from './features/anticipation/MentalRehearsalPage';
 import IntegrationPage from './features/integration/IntegrationPage';
 import CheckInPage from './features/readiness/CheckInPage';
 import AssessPage from './features/assess/AssessPage';
+import TablePlanPage from './features/table/TablePlanPage';
+import TableRunPage from './features/table/TableRunPage';
 
 function Layout() {
   return (
@@ -72,6 +74,8 @@ export default function App() {
         <Route path="/integration" element={<IntegrationPage />} />
         <Route path="/checkin" element={<CheckInPage />} />
         <Route path="/assess" element={<AssessPage />} />
+        <Route path="/table" element={<TablePlanPage />} />
+        <Route path="/table/run" element={<TableRunPage />} />
       </Routes>
     </HashRouter>
   );
