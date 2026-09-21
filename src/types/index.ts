@@ -374,6 +374,8 @@ export interface TableSegment {
   kind: TableSegmentKind;
   name: string;
   minutes: number;
+  /** 该段具体练什么（含目标技术），用于训练中明确说明 */
+  description?: string;
 }
 
 /** 训练配比（五类） */
@@ -396,6 +398,8 @@ export interface TableSession {
   segments: TableSegment[];
   completed: boolean;
   completedAt: number;
+  /** 换人次数（球搭子训练） */
+  swaps?: number;
 }
 
 // ===== V3：自我教练闭环（Self Coaching Loop）=====

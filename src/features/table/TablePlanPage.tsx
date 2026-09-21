@@ -41,6 +41,7 @@ export default function TablePlanPage() {
   const [ballSource, setBallSource] = useState<BallSource>('partner');
   const [partnerLevel, setPartnerLevel] = useState<PartnerLevel>('beginner');
   const [durationMin, setDurationMin] = useState(90);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const safety = evaluateSafety(todayCheckin(records) ?? {});
   const states = Object.entries(ASSESSMENT_CATALOG)
@@ -74,7 +75,10 @@ export default function TablePlanPage() {
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">台上训练编排</h2>
-        <Link to="/" className="inline-flex h-12 items-center px-2 text-sm text-slate-400 dark:text-slate-500">返回</Link>
+        <div className="flex items-center">
+          <button onClick={() => setHelpOpen(true)} className="inline-flex h-12 items-center px-2 text-sm text-blue-600 dark:text-blue-400">说明</button>
+          <Link to="/" className="inline-flex h-12 items-center px-2 text-sm text-slate-400 dark:text-slate-500">返回</Link>
+        </div>
       </div>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">周末把有限台上时间花在高价值组合上。</p>
 
@@ -124,7 +128,7 @@ export default function TablePlanPage() {
         <>
           <p className="mt-6 text-sm font-medium text-slate-500 dark:text-slate-400">球搭子水平</p>
           <div className="mt-2 flex gap-2">
-            <button onClick={() => setPartnerLevel('beginner')} className={`h-12 flex-1 rounded-xl text-sm ${partnerLevel === 'beginner' ? 'bg-blue-600 text-white' : 'bg-white ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800'}`}>水平一般</button>
+            <button onClick={() => setPartnerLevel('beginner')} className={`h-12 flex-1 rounded-xl text-sm ${partnerLevel === 'beginner' ? 'bg-blue-600 text-white' : 'bg-white ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800'}`}>水平相近</button>
             <button onClick={() => setPartnerLevel('higher')} className={`h-12 flex-1 rounded-xl text-sm ${partnerLevel === 'higher' ? 'bg-blue-600 text-white' : 'bg-white ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800'}`}>水平更高</button>
           </div>
         </>
@@ -182,26 +186,6 @@ export default function TablePlanPage() {
         </div>
       )}
 
-      {ballSource === 'partner' && (
-        <details className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-          <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-300">球搭子协议（{PARTNER_PROTOCOL.length} 条）</summary>
-          <ol className="mt-2 list-decimal pl-5 text-xs text-slate-500 dark:text-slate-400">
-            {PARTNER_PROTOCOL.map((p) => <li key={p}>{p}</li>)}
-          </ol>
-        </details>
-      )}
-
-      <details className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-        <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-300">术语说明</summary>
-        <div className="mt-2 space-y-1">
-          {Object.entries(GLOSSARY).map(([term, def]) => (
-            <p key={term} className="text-xs text-slate-500 dark:text-slate-400">
-              <span className="font-medium text-slate-600 dark:text-slate-300">{term}</span>：{def}
-            </p>
-          ))}
-        </div>
-      </details>
-
       <button
         onClick={start}
         disabled={safety.state === 'red'}
@@ -209,6 +193,34 @@ export default function TablePlanPage() {
       >
         {safety.state === 'red' ? '今日先休息' : '生成训练课 →'}
       </button>
+
+      {helpOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={() => setHelpOpen(false)}>
+          <div
+            className="mx-auto max-h-[82vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 pb-8 dark:bg-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-lg font-semibold">说明</p>
+              <button onClick={() => setHelpOpen(false)} className="min-h-12 px-2 text-sm text-slate-400 dark:text-slate-500">关闭</button>
+            </div>
+
+            <p className="mt-4 text-sm font-medium">术语说明</p>
+            <div className="mt-2 space-y-1">
+              {Object.entries(GLOSSARY).map(([term, def]) => (
+                <p key={term} className="text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-medium text-slate-600 dark:text-slate-300">{term}</span>：{def}
+                </p>
+              ))}
+            </div>
+
+            <p className="mt-5 text-sm font-medium">球搭子协议（{PARTNER_PROTOCOL.length} 条）</p>
+            <ol className="mt-2 list-decimal pl-5 text-xs text-slate-500 dark:text-slate-400">
+              {PARTNER_PROTOCOL.map((p) => <li key={p}>{p}</li>)}
+            </ol>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

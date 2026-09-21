@@ -26,13 +26,17 @@ function SegmentRunner({ segment, onDone }: { segment: TableSegment; onDone: () 
   return (
     <div className="flex flex-1 flex-col items-center justify-center text-center">
       <p className="text-2xl font-semibold">{segment.name}</p>
-      <p className="mt-1 text-sm text-slate-400">约 {segment.minutes} 分钟</p>
+      {segment.description && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{segment.description}</p>}
+      <p className="mt-1 text-xs text-slate-400">约 {segment.minutes} 分钟</p>
       <div className="mt-6 text-5xl font-bold tabular-nums text-slate-900 dark:text-white">
         {mm}:{String(ss).padStart(2, '0')}
       </div>
-      <div className="mt-6 flex items-center gap-3">
-        <button onClick={running ? pause : resume} className="h-12 flex-1 rounded-xl bg-slate-200 text-sm font-medium dark:bg-slate-700 dark:text-white">
-          {running ? '暂停' : '继续'}
+      <div className="mt-6 flex w-full max-w-xs items-center gap-3">
+        <button
+          onClick={running ? pause : resume}
+          className={`h-12 flex-1 rounded-xl text-sm font-medium text-white ${running ? 'bg-amber-500' : 'bg-emerald-500'}`}
+        >
+          {running ? '⏸ 暂停' : '▶ 继续'}
         </button>
         <button onClick={onDone} className="h-12 rounded-xl px-5 text-sm text-slate-400 dark:text-slate-500">完成此段</button>
       </div>
@@ -125,7 +129,7 @@ export default function TableRunPage() {
   const setIdx = useTableStore((s) => s.setIdx);
   const addSession = useTableStore((s) => s.add);
   const addCheck = useTableCheckStore((s) => s.add);
-  const [swapped, setSwapped] = useState(false);
+  const [swapCount, setSwapCount] = useState(0);
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
 
@@ -137,6 +141,7 @@ export default function TableRunPage() {
       ballSource: plan?.ballSource ?? 'partner',
       durationMin: plan?.durationMin ?? 0,
       segments: plan?.segments ?? [],
+      swaps: swapCount,
       completed: true,
       completedAt: Date.now(),
     });
@@ -257,9 +262,9 @@ export default function TableRunPage() {
 
       {plan.ballSource === 'partner' && (
         <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-100 px-4 py-2 text-sm dark:bg-slate-800">
-          <span className="text-slate-600 dark:text-slate-300">每轮约 3–6 分钟换人，保持质量</span>
-          <button onClick={() => setSwapped((s) => !s)} className="shrink-0 rounded-lg bg-white px-3 py-1 text-xs text-slate-600 ring-1 ring-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:ring-slate-600">
-            {swapped ? '已换人' : '换人'}
+          <span className="text-slate-600 dark:text-slate-300">建议每 3–6 分钟换人，双方都有训练任务</span>
+          <button onClick={() => setSwapCount((c) => c + 1)} className="shrink-0 rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white">
+            换人{swapCount > 0 ? ` · ${swapCount} 次` : ''}
           </button>
         </div>
       )}
@@ -273,7 +278,7 @@ export default function TableRunPage() {
             <span>段 {idx + 1}/{plan.segments.length}</span>
             <span>下一段：{plan.segments[idx + 1]?.name ?? '自检'}</span>
           </div>
-          <SegmentRunner key={idx} segment={plan.segments[idx]} onDone={() => setIdx(idx + 1)} />
+          <SegmentRunner key={`${idx}-${swapCount}`} segment={plan.segments[idx]} onDone={() => setIdx(idx + 1)} />
           <p className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
             练不下去？连续 3 次同类失误再诊断 · 一次只调一个变量 · 明显崩掉就退一级
           </p>

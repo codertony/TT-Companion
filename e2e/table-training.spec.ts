@@ -13,6 +13,8 @@ test('台上训练：首页入口 → 编排 → 生成训练课 → 逐段完�
   // 生成训练课
   await page.getByRole('button', { name: /生成训练课/ }).click();
   await expect(page.getByRole('heading', { name: /台上训练 · 反手起下旋/ })).toBeVisible();
+  // 段有具体说明
+  await expect(page.getByText(/活动关节/)).toBeVisible();
 
   // 逐段完成（green 下 8 段）
   for (let i = 0; i < 8; i++) {
@@ -54,6 +56,14 @@ test('台上训练：自检阶段点「结束」仍记录训练课', async ({ pa
   await page.getByRole('button', { name: '确认结束', exact: true }).click();
   await expect(page.getByText(/训练课已记录/)).toBeVisible();
   await expect(page.getByText('未做自检', { exact: true })).toBeVisible();
+});
+
+test('台上训练：说明弹框可打开', async ({ page }) => {
+  await page.goto('/#/table');
+  await page.getByRole('button', { name: '说明', exact: true }).click();
+  await expect(page.getByText('术语说明', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '关闭' }).click();
+  await expect(page.getByText('术语说明', { exact: true })).not.toBeVisible();
 });
 
 test('台上训练：Red 状态下不生成训练课', async ({ page }) => {
