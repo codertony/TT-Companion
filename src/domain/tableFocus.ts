@@ -8,7 +8,10 @@ export interface TableFocus {
 }
 
 export function deriveTableFocus(cue: Cue | null, limiters: LimiterFinding[]): TableFocus {
-  const lowerLimb = limiters.some((l) => l.capacityId === 'balance' || l.capacityId === 'joint_control');
+  // 只有「明确短板」(deficit ≥ 1) 才算；unknown（数据不足）不作为短板依据
+  const lowerLimb = limiters.some(
+    (l) => (l.capacityId === 'balance' || l.capacityId === 'joint_control') && l.deficit >= 1,
+  );
   if (lowerLimb) {
     return { title: '步法稳定', target: 'two_point_forehand', reason: '下肢稳定为当前短板，优先练固定移动（两点正手）' };
   }

@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { deriveTableFocus } from './tableFocus';
 import type { Cue, LimiterFinding } from '../types';
 
-function limiter(capacityId: LimiterFinding['capacityId']): LimiterFinding {
+function limiter(capacityId: LimiterFinding['capacityId'], deficit = 1): LimiterFinding {
   return {
-    capacityId, priority: 0.5, deficit: 1, goalRelevance: 0.9, transferEvidence: 0.8,
+    capacityId, priority: 0.5, deficit, goalRelevance: 0.9, transferEvidence: 0.8,
     dataConfidence: 0.6, trainability: 0.9, rationale: 'x', recommendation: 'x', retestProtocol: 'x', invalidatedBy: 'x',
   };
 }
@@ -29,6 +29,10 @@ describe('deriveTableFocus', () => {
   });
   it('无 CUE 无短板 → 默认正手攻', () => {
     const f = deriveTableFocus(null, []);
+    expect(f.target).toBe('forehand_drive');
+  });
+  it('仅 unknown（数据不足）不判为短板 → 默认正手攻', () => {
+    const f = deriveTableFocus(null, [limiter('balance', 0.5)]);
     expect(f.target).toBe('forehand_drive');
   });
 });

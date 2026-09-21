@@ -5,14 +5,14 @@ import { useTableCheckStore } from '../../stores/tableCheckStore';
 import { useCountdown } from '../../hooks/useCountdown';
 import { genId } from '../../lib/id';
 import { todayStr } from '../../lib/date';
-import { ERROR_LABELS, FIVE_CHECK_ITEMS, evaluateCheck, gatePassed, makeCheck } from '../../domain/tableCheck';
+import { ERROR_LABELS, FIVE_CHECK_ITEMS, GATES, evaluateCheck, gatePassed, makeCheck } from '../../domain/tableCheck';
 import type { ErrorKind, SelfCheckRecord, SelfCheckResult, TableSegment } from '../../types';
 
 type NewCheck = Omit<SelfCheckRecord, 'id' | 'date'>;
 
 interface RunResult {
   verdict: 'pass' | 'warn' | 'fail';
-  gate: boolean;
+  gates: { id: string; name: string; threshold: string; passed: boolean }[];
   hint: string;
   durationMin: number;
   segmentCount: number;
@@ -50,7 +50,12 @@ function SelfCheckForm({ drillId, focusPoint, onSubmit }: { drillId: string; foc
   const [rpe, setRpe] = useState('');
   const [topError, setTopError] = useState<ErrorKind | null>(null);
 
+  const hasFiveCheck = Object.values(check).some(Boolean);
+  const hasTotal = Number(successTotal) > 0;
+  const canSubmit = hasFiveCheck && hasTotal;
+
   const submit = () => {
+    if (!canSubmit) return;
     onSubmit({
       drillId,
       successMade: Number(successMade) || 0,
@@ -103,10 +108,12 @@ function SelfCheckForm({ drillId, focusPoint, onSubmit }: { drillId: string; foc
           </button>
         ))}
       </div>
+      <p className="mt-1 text-xs text-slate-400">3 球诊断：连续 3 次同类错误才判稳定问题，一次只调一个变量</p>
 
-      <button onClick={submit} className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-medium text-white">
+      <button onClick={submit} disabled={!canSubmit} className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-medium text-white disabled:opacity-40">
         完成并记录
       </button>
+      {!canSubmit && <p className="mt-1 text-xs text-slate-400">请至少勾一项自检并填写「总数」</p>}
     </div>
   );
 }
@@ -117,13 +124,14 @@ export default function TableRunPage() {
   const addCheck = useTableCheckStore((s) => s.add);
   const [idx, setIdx] = useState(0);
   const [swapped, setSwapped] = useState(false);
+  const [confirmEnd, setConfirmEnd] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
 
   const finish = (r: NewCheck) => {
     const record: SelfCheckRecord = { ...r, id: genId('chk'), date: todayStr() };
     const summary: RunResult = {
       verdict: evaluateCheck(r.check),
-      gate: gatePassed('stability', record),
+      gates: GATES.map((g) => ({ id: g.id, name: g.name, threshold: g.threshold, passed: gatePassed(g.id, record) })),
       hint: '',
       durationMin: plan?.durationMin ?? 0,
       segmentCount: plan?.segments.length ?? 0,
@@ -150,18 +158,23 @@ export default function TableRunPage() {
 
   if (result) {
     return (
-      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center bg-slate-50 px-5 text-center dark:bg-slate-950">
-        <p className="text-3xl font-semibold text-slate-900 dark:text-white">训练课已记录</p>
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <p className="text-3xl font-semibold">训练课已记录</p>
         <p className="mt-2 text-slate-500 dark:text-slate-400">
           {result.durationMin} 分钟 · {result.segmentCount} 段 · 已存自检记录
         </p>
-        <div className="mt-4 w-full rounded-2xl bg-white p-4 text-left ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-          <p className="text-sm font-medium text-slate-900 dark:text-white">自我验收</p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            五问：{result.verdict === 'pass' ? '✅ 全过' : result.verdict === 'warn' ? '⚠️ 部分通过' : '❌ 明显崩掉'}
-          </p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">稳定性门槛：{result.gate ? '✅ 通过' : '— 未通过'}</p>
-          <p className="mt-1 text-xs text-slate-400">{result.hint}</p>
+        <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <p className="text-sm font-medium">五问自检：{result.verdict === 'pass' ? '✅ 全过' : result.verdict === 'warn' ? '⚠️ 部分通过' : '❌ 明显崩掉'}</p>
+          <p className="mt-3 text-sm font-medium">四道进阶门槛</p>
+          <div className="mt-1 space-y-1">
+            {result.gates.map((g) => (
+              <div key={g.id} className="flex items-start justify-between gap-2 text-xs">
+                <span className="text-slate-600 dark:text-slate-300">{g.name}（{g.threshold}）</span>
+                <span className="shrink-0">{g.passed ? '✅' : '—'}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-slate-400">{result.hint}</p>
         </div>
         <Link to="/" className="mt-8 block h-12 w-full rounded-xl bg-blue-600 leading-[48px] text-white">回到首页</Link>
       </div>
@@ -192,12 +205,26 @@ export default function TableRunPage() {
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">台上训练 · {plan.target}</h2>
-        <Link to="/" className="inline-flex h-12 items-center px-2 text-sm text-slate-400 dark:text-slate-500">结束</Link>
+        {confirmEnd ? (
+          <span className="flex gap-3">
+            <Link to="/" className="text-sm text-red-500">确认结束</Link>
+            <button onClick={() => setConfirmEnd(false)} className="text-sm text-slate-400 dark:text-slate-500">取消</button>
+          </span>
+        ) : (
+          <button onClick={() => setConfirmEnd(true)} className="min-h-12 text-sm text-slate-500 dark:text-slate-400">结束</button>
+        )}
       </div>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         {plan.durationMin} 分钟 · 球源 {plan.ballSource === 'partner' ? '球搭子' : plan.ballSource === 'robot' ? '发球机' : '多球'}
-        {plan.focusPoint && ` · 只注意「${plan.focusPoint}」`}
       </p>
+
+      {(plan.rule || plan.partnerTask || plan.focusPoint) && (
+        <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          {plan.focusPoint && <p className="text-sm font-medium">只注意：{plan.focusPoint}</p>}
+          {plan.rule && <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{plan.rule}</p>}
+          {plan.partnerTask && <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">搭档：{plan.partnerTask}</p>}
+        </div>
+      )}
 
       {plan.ballSource === 'partner' && (
         <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-100 px-4 py-2 text-sm dark:bg-slate-800">

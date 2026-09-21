@@ -4,6 +4,8 @@ import { useCueStore } from '../../stores/cueStore';
 import { useFeedbackStore } from '../../stores/feedbackStore';
 import { useResultsStore } from '../../stores/resultsStore';
 import { useTableStore } from '../../stores/tableStore';
+import { useTableCheckStore } from '../../stores/tableCheckStore';
+import { ERROR_LABELS, FIVE_CHECK_ITEMS } from '../../domain/tableCheck';
 import { isThisWeek, streakDays, toDateStr } from '../../lib/date';
 import type { TrainingResult } from '../../types';
 
@@ -38,9 +40,13 @@ export default function DataPage() {
   const feedback = useFeedbackStore((s) => s.feedback);
   const results = useResultsStore((s) => s.results);
   const tableSessions = useTableStore((s) => s.sessions);
-  const weekDays = new Set(sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date)).size;
+  const checkRecords = useTableCheckStore((s) => s.records);
+  const weekDays = new Set([
+    ...sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date),
+    ...tableSessions.filter((s) => isThisWeek(s.date)).map((s) => s.date),
+  ]).size;
   const streak = streakDays(sessions.map((s) => s.date));
-  const total = sessions.length;
+  const total = sessions.length + tableSessions.length;
 
   const latestFeedback = primary ? feedback.find((f) => f.cueId === primary.id) : undefined;
   const resultLabel = { much: '明显改善', slight: '略有改善', none: '没有变化', worse: '感觉更差' }[
@@ -145,7 +151,26 @@ export default function DataPage() {
         </div>
       )}
 
-      {(reactionAcc != null || lastRt || moveLabel) && (
+      {checkRecords.length > 0 && (
+        <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <p className="text-sm font-medium">最近自我验收</p>
+          <div className="mt-2">
+            {checkRecords.slice(0, 3).map((r) => (
+              <div key={r.id} className="border-b border-slate-50 py-2 text-xs last:border-0 dark:border-slate-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600 dark:text-slate-300">{r.drillId} · 上台 {r.successMade}/{r.successTotal} · RPE {r.rpe}</span>
+                  <span className="text-slate-400">{r.date.slice(5)}</span>
+                </div>
+                <p className="mt-1 text-slate-400">
+                  五问：{FIVE_CHECK_ITEMS.map((it) => `${it.label}${r.check[it.key] ? '✓' : '✗'}`).join(' ')} · 失误：{ERROR_LABELS[r.topError]}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {(reactionAcc != null || lastRt || moveLabel || tableSessions.length > 0) && (
         <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
           <p className="text-sm font-medium">迁移线索（离台 → 球台）</p>
           <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">

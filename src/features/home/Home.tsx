@@ -3,6 +3,7 @@ import CueCard from '../../components/CueCard';
 import ProgressRing from '../../components/ProgressRing';
 import { useCueStore } from '../../stores/cueStore';
 import { useSessionStore } from '../../stores/sessionStore';
+import { useTableStore } from '../../stores/tableStore';
 import { useTrainStore } from '../../stores/trainStore';
 import { useCheckinStore, todayCheckin } from '../../stores/checkinStore';
 import { evaluateSafety } from '../../domain/safety';
@@ -46,11 +47,16 @@ function greeting(): string {
 export default function Home() {
   const primary = useCueStore((s) => s.primary);
   const sessions = useSessionStore((s) => s.sessions);
+  const tableSessions = useTableStore((s) => s.sessions);
   const plan = useTrainStore((s) => s.plan);
   const stepIdx = useTrainStore((s) => s.stepIdx);
   const startedAt = useTrainStore((s) => s.startedAt);
-  const weekDays = new Set(sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date)).size;
-  const todayDone = sessions.some((s) => s.date === todayStr());
+  const weekDays = new Set([
+    ...sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date),
+    ...tableSessions.filter((s) => isThisWeek(s.date)).map((s) => s.date),
+  ]).size;
+  const todayDone =
+    sessions.some((s) => s.date === todayStr()) || tableSessions.some((s) => s.date === todayStr());
   const resumable = !!(plan && startedAt && plan.steps.length > 0 && stepIdx < plan.steps.length);
   const records = useCheckinStore((s) => s.records);
   const checkin = todayCheckin(records);
@@ -108,21 +114,19 @@ export default function Home() {
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{safety.reasons.join('；')}</p>
         </div>
       ) : (
-        <>
-          <Link
-            to="/train"
-            className="mt-6 block h-12 rounded-xl bg-blue-600 text-center text-base font-medium leading-[48px] text-white transition active:scale-[0.98]"
-          >
-            开始训练 →
-          </Link>
-          <Link
-            to="/table"
-            className="mt-3 block h-12 rounded-xl bg-white text-center text-base font-medium leading-[48px] text-blue-600 ring-1 ring-blue-200 transition active:scale-[0.98] dark:bg-slate-900 dark:text-blue-400 dark:ring-blue-900"
-          >
-            台上训练编排 →（周末上台）
-          </Link>
-        </>
+        <Link
+          to="/train"
+          className="mt-6 block h-12 rounded-xl bg-blue-600 text-center text-base font-medium leading-[48px] text-white transition active:scale-[0.98]"
+        >
+          开始训练 →
+        </Link>
       )}
+      <Link
+        to="/table"
+        className="mt-3 block h-12 rounded-xl bg-white text-center text-base font-medium leading-[48px] text-blue-600 ring-1 ring-blue-200 transition active:scale-[0.98] dark:bg-slate-900 dark:text-blue-400 dark:ring-blue-900"
+      >
+        台上训练编排 →（周末上台）
+      </Link>
 
       <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">专项训练</p>
       <div className="mt-3 grid grid-cols-2 gap-3">

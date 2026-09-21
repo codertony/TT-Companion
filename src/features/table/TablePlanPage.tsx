@@ -56,12 +56,17 @@ export default function TablePlanPage() {
   const rep = getDrill(TARGET_DRILL[target]);
   const adaptation = rep ? adaptForPartner(rep, partnerLevel) : null;
   const robotHints = robotGuidance(rep?.layer ?? 'L1', rep?.randomness ?? 'fixed');
+  const ratio = tableRatio(0.5);
 
   const start = () => {
     if (safety.state === 'red') return;
-    const ratio = tableRatio(0.5);
     const plan = buildTableSession({ target: TARGET_LABELS[target], ballSource, durationMin, ratio, safety });
-    setPlan({ ...plan, focusPoint: rep?.focusPoint });
+    setPlan({
+      ...plan,
+      focusPoint: rep?.focusPoint,
+      rule: adaptation?.rule ?? rep?.rule,
+      partnerTask: adaptation?.partnerTask ?? rep?.partnerTask,
+    });
     nav('/table/run');
   };
 
@@ -132,6 +137,13 @@ export default function TablePlanPage() {
         ))}
       </div>
 
+      <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+        <p className="text-sm font-medium">训练配比（随水平演进）</p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          固定动作 {ratio.fixed}% · 固定脚步 {ratio.footwork}% · 半随机 {ratio.semi}% · 前三板 {ratio.serveReceive}% · 随机/比赛 {ratio.random}%
+        </p>
+      </div>
+
       <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">进阶链（技术 × 落点 × 移动 × 旋转 × 随机度 × 前后板）</p>
       <div className="mt-2 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
         {chain.map((s) => (
@@ -171,10 +183,12 @@ export default function TablePlanPage() {
       )}
 
       {ballSource === 'partner' && (
-        <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-          <p className="text-sm font-medium">球搭子协议（{PARTNER_PROTOCOL.length} 条）</p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{PARTNER_PROTOCOL.slice(0, 4).join(' · ')}…</p>
-        </div>
+        <details className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-300">球搭子协议（{PARTNER_PROTOCOL.length} 条）</summary>
+          <ol className="mt-2 list-decimal pl-5 text-xs text-slate-500 dark:text-slate-400">
+            {PARTNER_PROTOCOL.map((p) => <li key={p}>{p}</li>)}
+          </ol>
+        </details>
       )}
 
       <details className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">

@@ -18,6 +18,6 @@ export const useTableStore = create<TableState>()(
       setPlan: (plan) => set({ plan }),
       add: (s) => set((st) => ({ sessions: [s, ...st.sessions], plan: null })),
     }),
-    { name: 'ttc:tableSession', version: 1, partialize: (s) => ({ sessions: s.sessions }) },
+    { name: 'ttc:tableSession', version: 1, partialize: (s) => ({ sessions: s.sessions, plan: s.plan }) },
   ),
 );

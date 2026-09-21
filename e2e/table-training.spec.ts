@@ -19,8 +19,11 @@ test('台上训练：首页入口 → 编排 → 生成训练课 → 逐段完�
     await page.getByRole('button', { name: '完成此段' }).click();
   }
 
-  // 自检表单出现并提交
+  // 自检表单：勾一项五问 + 填总数后提交
   await expect(page.getByText(/五问自检/)).toBeVisible();
+  await page.getByRole('button', { name: '准', exact: true }).click();
+  await page.getByPlaceholder('总数', { exact: true }).fill('20');
+  await page.getByPlaceholder('上台数', { exact: true }).fill('17');
   await page.getByRole('button', { name: '完成并记录' }).click();
   await expect(page.getByText(/训练课已记录/)).toBeVisible();
 });

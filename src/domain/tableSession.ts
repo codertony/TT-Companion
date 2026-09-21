@@ -10,6 +10,8 @@ export interface TableSessionPlan {
   rationale: string[];
   reason?: string;
   focusPoint?: string; // 当前唯一主注意点（用于自检记录）
+  rule?: string; // 代表套路的规则（双方任务），供执行页展示
+  partnerTask?: string; // 搭档任务
 }
 
 const SEGMENT_TEMPLATE: { kind: TableSegmentKind; name: string; minutes: number }[] = [
