@@ -42,6 +42,20 @@ test('台上训练：跳过自检仍记录训练课', async ({ page }) => {
   await expect(page.getByText('未做自检', { exact: true })).toBeVisible();
 });
 
+test('台上训练：自检阶段点「结束」仍记录训练课', async ({ page }) => {
+  await page.goto('/#/table');
+  await page.getByRole('button', { name: /生成训练课/ }).click();
+
+  for (let i = 0; i < 8; i++) {
+    await page.getByRole('button', { name: '完成此段' }).click();
+  }
+  await expect(page.getByText(/五问自检/)).toBeVisible();
+  await page.getByRole('button', { name: '结束', exact: true }).click();
+  await page.getByRole('button', { name: '确认结束', exact: true }).click();
+  await expect(page.getByText(/训练课已记录/)).toBeVisible();
+  await expect(page.getByText('未做自检', { exact: true })).toBeVisible();
+});
+
 test('台上训练：Red 状态下不生成训练课', async ({ page }) => {
   await page.goto('/');
   // 造一个 Red 状态：直接写入 Check-in 记录（本地日期）

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTableStore } from '../../stores/tableStore';
 import { useTableCheckStore } from '../../stores/tableCheckStore';
 import { useCountdown } from '../../hooks/useCountdown';
@@ -119,6 +119,7 @@ function SelfCheckForm({ drillId, focusPoint, onSubmit }: { drillId: string; foc
 }
 
 export default function TableRunPage() {
+  const nav = useNavigate();
   const plan = useTableStore((s) => s.plan);
   const idx = useTableStore((s) => s.idx);
   const setIdx = useTableStore((s) => s.setIdx);
@@ -223,13 +224,19 @@ export default function TableRunPage() {
 
   const done = idx >= plan.segments.length;
 
+  // 自检阶段点「结束」也要落盘（等同「跳过自检」），避免已完成课表却丢记录
+  const endHandler = () => {
+    if (done) skip();
+    else nav('/');
+  };
+
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">台上训练 · {plan.target}</h2>
         {confirmEnd ? (
           <span className="flex gap-3">
-            <Link to="/" className="text-sm text-red-500">确认结束</Link>
+            <button onClick={endHandler} className="text-sm text-red-500">确认结束</button>
             <button onClick={() => setConfirmEnd(false)} className="text-sm text-slate-400 dark:text-slate-500">取消</button>
           </span>
         ) : (
