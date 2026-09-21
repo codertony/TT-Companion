@@ -65,7 +65,7 @@ export default function Home() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <p className="text-sm text-slate-500 dark:text-slate-400">{greeting()}，今天练一点吗</p>
-      <h1 className="mt-2 text-3xl font-bold">离台训练伴侣</h1>
+      <h1 className="mt-2 text-3xl font-bold">乒乓球训练伴侣</h1>
 
       {checkin ? (
         <div className={`mt-4 rounded-2xl p-4 ring-1 ${READY[safety.state].cls}`}>

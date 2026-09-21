@@ -4,7 +4,7 @@ test('主流程：首页 → 选场景 → 选时长 → 进入训练执行', as
   await page.goto('/');
 
   // 首页加载
-  await expect(page.getByRole('heading', { name: '离台训练伴侣' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '乒乓球训练伴侣' })).toBeVisible();
 
   // 开始训练 → 场景选择
   await page.getByRole('link', { name: /开始训练/ }).click();
