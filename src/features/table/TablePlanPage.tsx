@@ -23,7 +23,7 @@ const BALL_SOURCES: { id: BallSource; label: string }[] = [
   { id: 'multiball', label: '多球' },
 ];
 
-const DURATIONS = [60, 90, 120];
+const DURATIONS = [45, 60, 90, 120];
 
 const READY = {
   green: { label: '今天适合上台训练', cls: 'bg-emerald-50 ring-emerald-100 dark:bg-emerald-950 dark:ring-emerald-900', text: 'text-emerald-700 dark:text-emerald-300' },

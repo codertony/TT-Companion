@@ -48,6 +48,7 @@ export default function Home() {
   const primary = useCueStore((s) => s.primary);
   const sessions = useSessionStore((s) => s.sessions);
   const tableSessions = useTableStore((s) => s.sessions);
+  const tablePlan = useTableStore((s) => s.plan);
   const plan = useTrainStore((s) => s.plan);
   const stepIdx = useTrainStore((s) => s.stepIdx);
   const startedAt = useTrainStore((s) => s.startedAt);
@@ -105,6 +106,16 @@ export default function Home() {
           <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">
             第 {stepIdx + 1}/{plan.steps.length} 步 · 点此继续
           </p>
+        </Link>
+      )}
+
+      {tablePlan && tablePlan.segments.length > 0 && (
+        <Link
+          to="/table/run"
+          className="mt-4 block rounded-2xl bg-white p-4 ring-1 ring-slate-100 active:scale-[0.98] dark:bg-slate-900 dark:ring-slate-800"
+        >
+          <p className="font-medium">继续台上训练</p>
+          <p className="mt-1 text-sm text-slate-400">{tablePlan.target} · {tablePlan.durationMin} 分钟 · 点此继续</p>
         </Link>
       )}
 

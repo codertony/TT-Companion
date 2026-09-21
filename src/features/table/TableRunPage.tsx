@@ -11,7 +11,7 @@ import type { ErrorKind, SelfCheckRecord, SelfCheckResult, TableSegment } from '
 type NewCheck = Omit<SelfCheckRecord, 'id' | 'date'>;
 
 interface RunResult {
-  verdict: 'pass' | 'warn' | 'fail';
+  verdict: 'pass' | 'warn' | 'fail' | null;
   gates: { id: string; name: string; threshold: string; passed: boolean }[];
   hint: string;
   durationMin: number;
@@ -120,40 +120,56 @@ function SelfCheckForm({ drillId, focusPoint, onSubmit }: { drillId: string; foc
 
 export default function TableRunPage() {
   const plan = useTableStore((s) => s.plan);
+  const idx = useTableStore((s) => s.idx);
+  const setIdx = useTableStore((s) => s.setIdx);
   const addSession = useTableStore((s) => s.add);
   const addCheck = useTableCheckStore((s) => s.add);
-  const [idx, setIdx] = useState(0);
   const [swapped, setSwapped] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
 
-  const finish = (r: NewCheck) => {
-    const record: SelfCheckRecord = { ...r, id: genId('chk'), date: todayStr() };
-    const summary: RunResult = {
-      verdict: evaluateCheck(r.check),
-      gates: GATES.map((g) => ({ id: g.id, name: g.name, threshold: g.threshold, passed: gatePassed(g.id, record) })),
-      hint: '',
-      durationMin: plan?.durationMin ?? 0,
-      segmentCount: plan?.segments.length ?? 0,
-    };
-    summary.hint =
-      summary.verdict === 'fail'
-        ? '五问明显崩掉，建议退一级，找当前最高可控难度'
-        : summary.verdict === 'pass'
-          ? '五问全过，可尝试进入下一级（更难条件）'
-          : '部分通过，继续在当前难度巩固';
-    addCheck(r);
+  const saveSession = () => {
     addSession({
       id: genId('ts'),
       date: todayStr(),
       target: plan?.target ?? '',
       ballSource: plan?.ballSource ?? 'partner',
-      durationMin: summary.durationMin,
+      durationMin: plan?.durationMin ?? 0,
       segments: plan?.segments ?? [],
       completed: true,
       completedAt: Date.now(),
     });
+  };
+
+  const finish = (r: NewCheck) => {
+    const record: SelfCheckRecord = { ...r, id: genId('chk'), date: todayStr() };
+    const verdict = evaluateCheck(r.check);
+    const summary: RunResult = {
+      verdict,
+      gates: GATES.map((g) => ({ id: g.id, name: g.name, threshold: g.threshold, passed: gatePassed(g.id, record) })),
+      hint:
+        verdict === 'fail'
+          ? '五问明显崩掉，建议退一级，找当前最高可控难度'
+          : verdict === 'pass'
+            ? '五问全过，可尝试进入下一级（更难条件）'
+            : '部分通过，继续在当前难度巩固',
+      durationMin: plan?.durationMin ?? 0,
+      segmentCount: plan?.segments.length ?? 0,
+    };
+    addCheck(r);
+    saveSession();
     setResult(summary);
+  };
+
+  const skip = () => {
+    saveSession();
+    setResult({
+      verdict: null,
+      gates: [],
+      hint: '本次未做自检，下次训练记得做一次五问自检',
+      durationMin: plan?.durationMin ?? 0,
+      segmentCount: plan?.segments.length ?? 0,
+    });
   };
 
   if (result) {
@@ -161,19 +177,25 @@ export default function TableRunPage() {
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <p className="text-3xl font-semibold">训练课已记录</p>
         <p className="mt-2 text-slate-500 dark:text-slate-400">
-          {result.durationMin} 分钟 · {result.segmentCount} 段 · 已存自检记录
+          {result.durationMin} 分钟 · {result.segmentCount} 段
         </p>
         <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-          <p className="text-sm font-medium">五问自检：{result.verdict === 'pass' ? '✅ 全过' : result.verdict === 'warn' ? '⚠️ 部分通过' : '❌ 明显崩掉'}</p>
-          <p className="mt-3 text-sm font-medium">四道进阶门槛</p>
-          <div className="mt-1 space-y-1">
-            {result.gates.map((g) => (
-              <div key={g.id} className="flex items-start justify-between gap-2 text-xs">
-                <span className="text-slate-600 dark:text-slate-300">{g.name}（{g.threshold}）</span>
-                <span className="shrink-0">{g.passed ? '✅' : '—'}</span>
+          {result.verdict === null ? (
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">未做自检</p>
+          ) : (
+            <>
+              <p className="text-sm font-medium">五问自检：{result.verdict === 'pass' ? '✅ 全过' : result.verdict === 'warn' ? '⚠️ 部分通过' : '❌ 明显崩掉'}</p>
+              <p className="mt-3 text-sm font-medium">四道进阶门槛</p>
+              <div className="mt-1 space-y-1">
+                {result.gates.map((g) => (
+                  <div key={g.id} className="flex items-start justify-between gap-2 text-xs">
+                    <span className="text-slate-600 dark:text-slate-300">{g.name}（{g.threshold}）</span>
+                    <span className="shrink-0">{g.passed ? '✅' : '—'}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
           <p className="mt-2 text-xs text-slate-400">{result.hint}</p>
         </div>
         <Link to="/" className="mt-8 block h-12 w-full rounded-xl bg-blue-600 leading-[48px] text-white">回到首页</Link>
@@ -244,7 +266,10 @@ export default function TableRunPage() {
             <span>段 {idx + 1}/{plan.segments.length}</span>
             <span>下一段：{plan.segments[idx + 1]?.name ?? '自检'}</span>
           </div>
-          <SegmentRunner key={idx} segment={plan.segments[idx]} onDone={() => setIdx((i) => i + 1)} />
+          <SegmentRunner key={idx} segment={plan.segments[idx]} onDone={() => setIdx(idx + 1)} />
+          <p className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+            练不下去？连续 3 次同类失误再诊断 · 一次只调一个变量 · 明显崩掉就退一级
+          </p>
         </>
       )}
 
@@ -252,6 +277,7 @@ export default function TableRunPage() {
         <div className="mt-6 flex flex-1 flex-col">
           <p className="text-sm text-slate-500 dark:text-slate-400">训练课段已完成，做一次自我验收：</p>
           <SelfCheckForm drillId={plan.target} focusPoint={plan.focusPoint} onSubmit={finish} />
+          <button onClick={skip} className="mt-3 text-sm text-slate-400">跳过自检，直接结束</button>
         </div>
       )}
     </div>

@@ -28,6 +28,20 @@ test('台上训练：首页入口 → 编排 → 生成训练课 → 逐段完�
   await expect(page.getByText(/训练课已记录/)).toBeVisible();
 });
 
+test('台上训练：跳过自检仍记录训练课', async ({ page }) => {
+  await page.goto('/#/table');
+  await page.getByRole('button', { name: /生成训练课/ }).click();
+  await expect(page.getByRole('heading', { name: /台上训练 · / })).toBeVisible();
+
+  for (let i = 0; i < 8; i++) {
+    await page.getByRole('button', { name: '完成此段' }).click();
+  }
+  await expect(page.getByText(/五问自检/)).toBeVisible();
+  await page.getByRole('button', { name: /跳过自检/ }).click();
+  await expect(page.getByText(/训练课已记录/)).toBeVisible();
+  await expect(page.getByText('未做自检', { exact: true })).toBeVisible();
+});
+
 test('台上训练：Red 状态下不生成训练课', async ({ page }) => {
   await page.goto('/');
   // 造一个 Red 状态：直接写入 Check-in 记录（本地日期）

@@ -62,6 +62,16 @@ export default function DataPage() {
     ? ({ much: '明显改善', slight: '略有改善', none: '没有变化', worse: '感觉更差' } as const)[latestFeedback.movementResult]
     : null;
 
+  const checkTrend = (() => {
+    if (checkRecords.length < 2) return null;
+    const latest = checkRecords[0];
+    const prev = checkRecords.slice(1).find((r) => r.drillId === latest.drillId);
+    if (!prev) return null;
+    const rate = (r: (typeof checkRecords)[number]) =>
+      r.successTotal > 0 ? Math.round((r.successMade / r.successTotal) * 100) : 0;
+    return { drillId: latest.drillId, prev: rate(prev), latest: rate(latest) };
+  })();
+
   const bars = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -154,6 +164,11 @@ export default function DataPage() {
       {checkRecords.length > 0 && (
         <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
           <p className="text-sm font-medium">最近自我验收</p>
+          {checkTrend && (
+            <p className="mt-1 text-xs text-slate-400">
+              {checkTrend.drillId} 上台率：{checkTrend.prev}% → {checkTrend.latest}%（{checkTrend.latest >= checkTrend.prev ? '↑ 改善' : '↓ 下降'}）
+            </p>
+          )}
           <div className="mt-2">
             {checkRecords.slice(0, 3).map((r) => (
               <div key={r.id} className="border-b border-slate-50 py-2 text-xs last:border-0 dark:border-slate-800">
