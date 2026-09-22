@@ -81,3 +81,26 @@ test('台上训练：Red 状态下不生成训练课', async ({ page }) => {
   await page.goto('/#/table');
   await expect(page.getByRole('button', { name: /今日先休息/ })).toBeVisible();
 });
+
+test('球馆场景：从「在哪里训练？」进入台上训练编排 → 生成训练课 → 执行', async ({ page }) => {
+  await page.goto('/#/train');
+  await expect(page.getByRole('heading', { name: '在哪里训练？' })).toBeVisible();
+
+  // 球馆卡片上有两个明确动作：上台训练 / 记录验证
+  await expect(page.getByRole('button', { name: /上台训练/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: '记录验证', exact: true })).toBeVisible();
+
+  // 主路径：上台训练 → 台上训练编排
+  await page.getByRole('button', { name: /上台训练/ }).click();
+  await expect(page.getByRole('heading', { name: '台上训练编排' })).toBeVisible();
+
+  // 生成训练课 → 训练执行页
+  await page.getByRole('button', { name: /生成训练课/ }).click();
+  await expect(page.getByRole('heading', { name: /台上训练 · / })).toBeVisible();
+});
+
+test('球馆场景：保留「记录验证」通路', async ({ page }) => {
+  await page.goto('/#/train');
+  await page.getByRole('button', { name: '记录验证', exact: true }).click();
+  await expect(page).toHaveURL(/#\/profile\/feedback/);
+});

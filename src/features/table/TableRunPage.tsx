@@ -205,6 +205,12 @@ export default function TableRunPage() {
           <p className="mt-2 text-xs text-slate-400">{result.hint}</p>
         </div>
         <Link to="/" className="mt-8 block h-12 w-full rounded-xl bg-blue-600 leading-[48px] text-white">回到首页</Link>
+        <Link
+          to="/profile/feedback"
+          className="mt-3 block h-12 w-full rounded-xl bg-white leading-[48px] text-blue-600 ring-1 ring-blue-200 transition active:scale-[0.98] dark:bg-slate-900 dark:text-blue-400 dark:ring-blue-900"
+        >
+          去记录验证结果 →
+        </Link>
       </div>
     );
   }
