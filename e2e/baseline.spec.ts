@@ -6,8 +6,8 @@ test('主流程：首页 → 选场景 → 选时长 → 进入训练执行', as
   // 首页加载
   await expect(page.getByRole('heading', { name: '乒乓球训练伴侣' })).toBeVisible();
 
-  // 开始训练 → 场景选择
-  await page.getByRole('link', { name: /开始训练/ }).click();
+  // 离台练习 → 场景选择
+  await page.getByRole('link', { name: /离台练习/ }).click();
   await expect(page.getByRole('heading', { name: '在哪里训练？' })).toBeVisible();
 
   // 选择「家」场景 → 时长选择

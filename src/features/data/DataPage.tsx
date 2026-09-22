@@ -90,7 +90,7 @@ export default function DataPage() {
         <p className="text-lg font-semibold">还没有训练数据</p>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">完成第一次训练后，这里会显示你的训练节奏和变化。</p>
         <Link to="/train" className="mt-6 block h-12 w-full rounded-xl bg-blue-600 leading-[48px] text-white">
-          开始训练
+          离台练习
         </Link>
       </div>
     );

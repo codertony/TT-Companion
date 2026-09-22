@@ -97,6 +97,16 @@ export default function Home() {
         <CueCard cue={primary} />
       </div>
 
+      {tablePlan && tablePlan.segments.length > 0 && (
+        <Link
+          to="/table/run"
+          className="mt-4 block rounded-2xl bg-white p-4 ring-1 ring-slate-100 active:scale-[0.98] dark:bg-slate-900 dark:ring-slate-800"
+        >
+          <p className="font-medium">继续台上训练</p>
+          <p className="mt-1 text-sm text-slate-400">{tablePlan.target} · {tablePlan.durationMin} 分钟 · 点此继续</p>
+        </Link>
+      )}
+
       {resumable && plan && (
         <Link
           to="/train/run"
@@ -109,35 +119,25 @@ export default function Home() {
         </Link>
       )}
 
-      {tablePlan && tablePlan.segments.length > 0 && (
-        <Link
-          to="/table/run"
-          className="mt-4 block rounded-2xl bg-white p-4 ring-1 ring-slate-100 active:scale-[0.98] dark:bg-slate-900 dark:ring-slate-800"
-        >
-          <p className="font-medium">继续台上训练</p>
-          <p className="mt-1 text-sm text-slate-400">{tablePlan.target} · {tablePlan.durationMin} 分钟 · 点此继续</p>
-        </Link>
-      )}
-
+      <Link
+        to="/table"
+        className="mt-6 block h-12 rounded-xl bg-blue-600 text-center text-base font-medium leading-[48px] text-white transition active:scale-[0.98]"
+      >
+        台上训练编排 →
+      </Link>
       {checkin && safety.state === 'red' ? (
-        <div className="mt-6 rounded-2xl bg-red-50 p-4 text-center ring-1 ring-red-100 dark:bg-red-950 dark:ring-red-900">
+        <div className="mt-3 rounded-2xl bg-red-50 p-4 text-center ring-1 ring-red-100 dark:bg-red-950 dark:ring-red-900">
           <p className="font-medium text-red-700 dark:text-red-300">今天先休息，不做训练</p>
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{safety.reasons.join('；')}</p>
         </div>
       ) : (
         <Link
           to="/train"
-          className="mt-6 block h-12 rounded-xl bg-blue-600 text-center text-base font-medium leading-[48px] text-white transition active:scale-[0.98]"
+          className="mt-3 block h-12 rounded-xl bg-white text-center text-base font-medium leading-[48px] text-blue-600 ring-1 ring-blue-200 transition active:scale-[0.98] dark:bg-slate-900 dark:text-blue-400 dark:ring-blue-900"
         >
-          开始训练 →
+          离台练习 →
         </Link>
       )}
-      <Link
-        to="/table"
-        className="mt-3 block h-12 rounded-xl bg-white text-center text-base font-medium leading-[48px] text-blue-600 ring-1 ring-blue-200 transition active:scale-[0.98] dark:bg-slate-900 dark:text-blue-400 dark:ring-blue-900"
-      >
-        台上训练编排 →（周末上台）
-      </Link>
 
       <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">专项训练</p>
       <div className="mt-3 grid grid-cols-2 gap-3">
