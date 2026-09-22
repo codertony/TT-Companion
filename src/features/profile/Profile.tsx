@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCueStore } from '../../stores/cueStore';
 import { useFeedbackStore } from '../../stores/feedbackStore';
+import { useInstallEnv } from '../../hooks/useInstallEnv';
 
 const FEEDBACK_FORM_URL =
   'https://docs.qq.com/smartsheet/form/FCXQUMPQmTKM%2Ft00i2h%2FvYHyv6?tab=t00i2h';
@@ -12,6 +13,7 @@ type ProfileLink =
 export default function Profile() {
   const primary = useCueStore((s) => s.primary);
   const feedback = useFeedbackStore((s) => s.feedback);
+  const { env } = useInstallEnv();
 
   const cueDesc = !primary
     ? '先定一个最想改的毛病'
@@ -20,11 +22,18 @@ export default function Profile() {
       : '';
   const cueDot = Boolean(primary && !feedback.some((f) => f.cueId === primary.id));
 
+  // 已安装（standalone）时不显示安装引导入口，克制不打扰
+  const installLink: ProfileLink[] =
+    env === 'installed'
+      ? []
+      : [{ key: 'install', to: '/profile/install', name: '桌面应用安装引导', desc: '装成应用，更快打开、离线可用' }];
+
   const links: ProfileLink[] = [
     { key: 'cue', to: '/profile/cue', name: 'ONE CUE 管理', desc: cueDesc, dot: cueDot },
     { key: 'assess', to: '/assess', name: '评估中心', desc: '单腿稳定 / 下肢控制，找左右短板' },
     { key: 'weekend', to: '/profile/feedback', name: '周末验证', desc: '本周 Cue 有没有迁移到真实击球' },
     { key: 'feedback', href: FEEDBACK_FORM_URL, name: '意见反馈', desc: '用一分钟告诉我们哪里不好用' },
+    ...installLink,
     { key: 'settings', to: '/profile/settings', name: '设置', desc: '提示参数、主题、导出与清空' },
   ];
 

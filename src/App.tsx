@@ -13,6 +13,7 @@ import Profile from './features/profile/Profile';
 import CueManage from './features/profile/CueManage';
 import Feedback from './features/profile/Feedback';
 import SettingsPage from './features/profile/SettingsPage';
+import InstallGuidePage from './features/profile/InstallGuidePage';
 import PowerChainPage from './features/powerchain/PowerChainPage';
 import AnticipationPage from './features/anticipation/AnticipationPage';
 import OcclusionPage from './features/anticipation/OcclusionPage';
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/profile/cue" element={<CueManage />} />
           <Route path="/profile/feedback" element={<Feedback />} />
           <Route path="/profile/settings" element={<SettingsPage />} />
+          <Route path="/profile/install" element={<InstallGuidePage />} />
         </Route>
         <Route path="/train/run" element={<TrainRun />} />
         <Route path="/reaction" element={<ReactionPage />} />
