@@ -73,7 +73,7 @@ export default function ReactionTrainer({
             <button onClick={() => setCorrect((c) => c + 1)} className="h-12 w-32 rounded-xl bg-emerald-500 text-white">
               跟上了
             </button>
-            <button onClick={() => setSkipped((s) => s + 1)} className="h-12 w-32 rounded-xl ring-1 ring-slate-300 dark:ring-slate-600">
+            <button onClick={() => setSkipped((s) => s + 1)} className="h-12 w-32 rounded-xl bg-slate-100 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
               没跟上
             </button>
           </div>

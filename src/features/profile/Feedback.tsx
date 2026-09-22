@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCueStore } from '../../stores/cueStore';
 import { useFeedbackStore } from '../../stores/feedbackStore';
-import { today } from '../../lib/cue';
+import { CUE_TAG_LABELS, today } from '../../lib/cue';
 import type { FeedbackResult } from '../../types';
 
 const options: { id: FeedbackResult; label: string; short: string; color: string }[] = [
@@ -71,7 +71,7 @@ export default function Feedback() {
         <p className="text-xs text-slate-400">只观察这一点</p>
         <p className="mt-1 text-xl font-semibold">{primary.text}</p>
         {primary.tags.length > 0 && (
-          <p className="mt-1 text-xs text-slate-400">{primary.tags.join(' · ')}</p>
+          <p className="mt-1 text-xs text-slate-400">{primary.tags.map((t) => CUE_TAG_LABELS[t] ?? t).join(' · ')}</p>
         )}
       </div>
 

@@ -155,9 +155,9 @@ function TimedStep({
               logEvent('resume', stepIdx);
             }
           }}
-          className="h-12 flex-1 rounded-xl bg-slate-200 text-sm font-medium dark:bg-slate-700 dark:text-white"
+          className={`h-12 flex-1 rounded-xl text-sm font-medium text-white ${running ? 'bg-amber-500' : 'bg-emerald-500'}`}
         >
-          {running ? '暂停' : '继续'}
+          {running ? '⏸ 暂停' : '▶ 继续'}
         </button>
         <button onClick={onSkip} className="h-12 rounded-xl px-5 text-sm text-slate-400 dark:text-slate-500">
           跳过
@@ -198,25 +198,34 @@ export default function TrainRun() {
     );
   }
 
+  const save = () => {
+    if (savedRef.current) return;
+    savedRef.current = true;
+    const actualSec = startedAt ? Math.round((Date.now() - startedAt) / 1000) : undefined;
+    addSession({
+      id: genId('s'),
+      date: today(),
+      scene: scene ?? 'home',
+      durationMin,
+      types: plan.steps.map((s) => getExercise(s.exerciseId)?.ability ?? 'technique'),
+      cueId: cue?.id,
+      feeling,
+      completed: true,
+      completedAt: Date.now(),
+      ...(actualSec != null ? { actualSec } : {}),
+    });
+  };
+
   const finish = () => {
-    if (!savedRef.current) {
-      savedRef.current = true;
-      const actualSec = startedAt ? Math.round((Date.now() - startedAt) / 1000) : undefined;
-      addSession({
-        id: genId('s'),
-        date: today(),
-        scene: scene ?? 'home',
-        durationMin,
-        types: plan.steps.map((s) => getExercise(s.exerciseId)?.ability ?? 'technique'),
-        cueId: cue?.id,
-        feeling,
-        completed: true,
-        completedAt: Date.now(),
-        ...(actualSec != null ? { actualSec } : {}),
-      });
-    }
+    save();
     setStepIdx(plan.steps.length);
     setDone(true);
+  };
+
+  // 点「结束」也要落盘，避免已完成的部分训练被丢弃（同台上训练的 R21）
+  const endHandler = () => {
+    save();
+    nav('/');
   };
 
   const next = (reason: RunEventType = 'complete') => {
@@ -257,7 +266,7 @@ export default function TrainRun() {
         </span>
         {confirmEnd ? (
           <span className="flex gap-3">
-            <button onClick={() => nav('/')} className="text-red-500">
+            <button onClick={endHandler} className="text-red-500">
               确认结束
             </button>
             <button onClick={() => setConfirmEnd(false)} className="text-slate-400">

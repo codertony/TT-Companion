@@ -50,6 +50,7 @@ function AssessForm({ id, meta }: { id: string; meta: AssessmentMeta }) {
         <p className="font-medium">{meta.label}</p>
         <span className="text-xs text-slate-400">{statusLabel(state?.status ?? 'unknown')}</span>
       </div>
+      {meta.howTo && <p className="mt-1.5 text-xs text-slate-400">{meta.howTo}</p>}
       <div className="mt-2 flex gap-2">
         {meta.kind === 'bilateral' ? (
           <>

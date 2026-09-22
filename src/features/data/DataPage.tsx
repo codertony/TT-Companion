@@ -45,7 +45,8 @@ export default function DataPage() {
     ...sessions.filter((s) => isThisWeek(s.date)).map((s) => s.date),
     ...tableSessions.filter((s) => isThisWeek(s.date)).map((s) => s.date),
   ]).size;
-  const streak = streakDays(sessions.map((s) => s.date));
+  const allSessionDates = [...sessions.map((s) => s.date), ...tableSessions.map((t) => t.date)];
+  const streak = streakDays(allSessionDates);
   const total = sessions.length + tableSessions.length;
 
   const latestFeedback = primary ? feedback.find((f) => f.cueId === primary.id) : undefined;
@@ -75,7 +76,11 @@ export default function DataPage() {
   const bars = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
-    return { label: d.getDate(), count: sessions.filter((s) => s.date === toDateStr(d)).length };
+    const ds = toDateStr(d);
+    return {
+      label: d.getDate(),
+      count: sessions.filter((s) => s.date === ds).length + tableSessions.filter((t) => t.date === ds).length,
+    };
   });
   const maxCount = Math.max(1, ...bars.map((b) => b.count));
 
@@ -154,7 +159,7 @@ export default function DataPage() {
                 <span className="text-slate-600 dark:text-slate-300">
                   {t.target} · {t.ballSource === 'partner' ? '球搭子' : t.ballSource === 'robot' ? '发球机' : '多球'}
                 </span>
-                <span className="text-xs text-slate-400">{t.date.slice(5)} · {t.durationMin}min</span>
+                <span className="text-xs text-slate-400">{t.date.slice(5)} · {t.durationMin}min{t.swaps ? ` · 换人 ${t.swaps} 次` : ''}</span>
               </div>
             ))}
           </div>

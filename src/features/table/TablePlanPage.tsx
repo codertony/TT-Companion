@@ -142,10 +142,11 @@ export default function TablePlanPage() {
       </div>
 
       <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-        <p className="text-sm font-medium">训练配比（随水平演进）</p>
+        <p className="text-sm font-medium">训练配比</p>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           固定动作 {ratio.fixed}% · 固定脚步 {ratio.footwork}% · 半随机 {ratio.semi}% · 前三板 {ratio.serveReceive}% · 随机/比赛 {ratio.random}%
         </p>
+        <p className="mt-1 text-xs text-slate-400">动作越稳定，固定动作占比会越低、随机与比赛占比越高</p>
       </div>
 
       <p className="mt-8 text-sm font-medium text-slate-500 dark:text-slate-400">进阶链（技术 × 落点 × 移动 × 旋转 × 随机度 × 前后板）</p>

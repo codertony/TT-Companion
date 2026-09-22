@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCueStore } from '../../stores/cueStore';
+import { CUE_TAG_LABELS } from '../../lib/cue';
 import type { CueTag, CueType } from '../../types';
 
 const types: { id: CueType; label: string; sub: string }[] = [
@@ -8,13 +9,7 @@ const types: { id: CueType; label: string; sub: string }[] = [
   { id: 'movement', label: '移动', sub: '脚下怎么到位' },
 ];
 
-const tags: { id: CueTag; label: string }[] = [
-  { id: 'arm_stiff', label: '手臂僵硬' },
-  { id: 'hand_first', label: '手先启动' },
-  { id: 'footwork_slow', label: '步法慢' },
-  { id: 'recovery_slow', label: '还原慢' },
-  { id: 'early_hit', label: '击球偏早' },
-];
+const tags = (Object.entries(CUE_TAG_LABELS) as [CueTag, string][]).map(([id, label]) => ({ id, label }));
 
 export default function CueManage() {
   const { primary, backlog, history, add, activate, archive, reorder } = useCueStore();

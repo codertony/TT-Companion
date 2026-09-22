@@ -21,7 +21,6 @@ export default function IntegrationPage() {
   const [ball, setBall] = useState('');
   const [step, setStep] = useState(-1);
   const [running, setRunning] = useState(false);
-  const [appliedId, setAppliedId] = useState<string | null>(null);
 
   const nextBall = () => {
     setBall(balls[Math.floor(Math.random() * balls.length)]);
@@ -50,7 +49,6 @@ export default function IntegrationPage() {
       });
       activate(cueId);
     }
-    setAppliedId(id);
   };
 
   const isActive = (drillId: string) => primary?.text === errorDrills.find((d) => d.id === drillId)?.primaryCue;
@@ -104,9 +102,6 @@ export default function IntegrationPage() {
             <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
               {d.drills.join(' + ')} · Cue「{d.primaryCue}」
             </p>
-            {appliedId === d.id && !isActive(d.id) && (
-              <p className="mt-1 text-xs text-slate-500">已记录，去「我的」激活</p>
-            )}
           </div>
         ))}
       </div>

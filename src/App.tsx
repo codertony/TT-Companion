@@ -36,7 +36,12 @@ function ThemeApplier() {
   const theme = useSettingsStore((s) => s.theme);
   useEffect(() => {
     const root = document.documentElement;
-    const apply = (dark: boolean) => root.classList.toggle('dark', dark);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const apply = (dark: boolean) => {
+      root.classList.toggle('dark', dark);
+      // 顶部状态栏颜色跟随主题背景，避免固定蓝色
+      meta?.setAttribute('content', dark ? '#020617' : '#f8fafc');
+    };
     if (theme === 'system') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       apply(mq.matches);

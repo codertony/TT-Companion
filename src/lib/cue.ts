@@ -1,4 +1,5 @@
-import type { Cue, Feedback } from '../types';
+import type { Cue, CueTag, Feedback } from '../types';
+import { toDateStr } from './date';
 
 export interface CueCollection {
   primary: Cue | null;
@@ -7,8 +8,17 @@ export interface CueCollection {
 }
 
 export function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  return toDateStr(new Date());
 }
+
+/** CueTag → 中文标签（单一事实来源，供 CueCard / Feedback / CueManage 展示） */
+export const CUE_TAG_LABELS: Record<CueTag, string> = {
+  arm_stiff: '手臂僵硬',
+  hand_first: '手先启动',
+  footwork_slow: '步法慢',
+  recovery_slow: '还原慢',
+  early_hit: '击球偏早',
+};
 
 /** 激活一个 Backlog Cue：旧 active 自动归档，保证唯一 active */
 export function activateCue(state: CueCollection, id: string): CueCollection {

@@ -46,7 +46,7 @@ export default function DurationSelect() {
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-slate-50 px-5 py-8 pb-24 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <h2 className="text-2xl font-semibold">今天状态怎么样？</h2>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-        在「{sceneName}」训练 · 状态一般会给你更短的组数和更低强度
+        在「{sceneName}」训练 · 选「累」会自动降强度：去掉高强度、多排放松动作
       </p>
 
       <div className="mt-4 flex gap-3">

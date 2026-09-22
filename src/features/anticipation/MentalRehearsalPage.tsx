@@ -72,7 +72,9 @@ export default function MentalRehearsalPage() {
               开始 →
             </button>
             {!cue && (
-              <p className="mt-3 text-xs text-slate-400">还没有本周提示词，去「整合」页选一个问题。</p>
+              <p className="mt-3 text-xs text-slate-400">
+                还没有本周提示词，去 <Link to="/integration" className="text-blue-500 dark:text-blue-400">整合</Link> 页选一个问题。
+              </p>
             )}
           </>
         ) : (
